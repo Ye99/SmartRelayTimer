@@ -2,8 +2,12 @@
  use <touch_pad_bezel.scad>
  use <HW-389_box.scad>
  
- base_x_length=96;
- base_y_length=106; // same width as electrical box
+comtrol_compartment_x_length=96; // These x/y length is inner size, not including wall thickness
+control_compartment_y_length=106; // The same width as electrical box
+control_compartment_wall_thickness=2;
  
  HW_389_base(base_x_length, base_y_length, 43);
  
+ module cover() {
+     
+ }
