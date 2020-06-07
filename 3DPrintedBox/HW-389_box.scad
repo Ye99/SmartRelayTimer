@@ -1,216 +1,116 @@
 /* By: Ye Zhang (mr.yezhang@gmail.com)
-   Date: May 22, 2020
-    Raspberry Pi breakout holder and electrical box. 
+   Date: June 6, 2020
+    HW-389 base. To be embedded into panel. 
 */
 
 use <roundedCube.scad>
 
-// Choose, which part you want to see!
-part = "all_parts__";  //[all_parts__:All Parts,box_bottom:BoxBottom,box_cover:BoxCover]
+wall_thickness=1;
 
-// Standard width is 69.33mm. This is inner space width.
-width=52; //[51:85]
-// Inner space height. Default 41mm
-height=41;  // [37:70]
+// Add this to measured sizes and get opening sizes. 
+free_play_size=2;
 
-// Wall thickness in mm, add to width and height. Actuall wall (including cover) thickness is
-// half of this value. 
-wall_double_thickness=3.5; // [1:4]
-// Outlet screw diameter (mm) for the holes at 2 ends
-outlet_screw_hole_diag=3.4; // [3:6]
-// The screw hole on box bottom tab, to secure the box.
-bottom_tab_screw_hole_diag=5;
-// Width of hole to run the mains input wires (mm)
-// Below 14/2 wire width is 10, height is 5
-// https://smile.amazon.com/gp/product/B000BPEQCC/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
-wires_hole_width=11; // [8:12]
-// The height of hole to run the mains input wires (mm)
-wires_hole_height=6; // [4:12]
+// both x and y minimum length is 60. Can be longer to accomdate larger panel size.
+base_x_length=60;
+base_y_length=60;
 
-// This is relay control wire. For three wires recommend 8.
-relay_control_wires_hole_diameter=0; // [0:12]. 
+// The minimum height covering HW-389 and ESP8266 V3 board, including protruded pin height under HW-389.
+base_z_length=20;
 
-// Radius of rounded corner
-rounded_corner_radius=2;
+// dc_plug_center_y_offset=4.5;
+dc_plug_x_offset=0;
+dc_plug_x_length=9;
+dc_plug_z_length=11;
+dc_plug_z_offset=0;
 
-cover_alignment_tab_length=3;
-cover_alignment_tab_height=5;
-// The tab is short, regular wall thickness isn't strong enough. 
-cover_alignment_tab_thickness=wall_double_thickness*2;
-// The larger this value, the more cover free-play allowed.
-cover_alignment_tab_tolerance=0.2;
+usb_plug_x_offset=23.4;
+usb_plug_x_length=7.5;
+usb_plug_z_length=3;
+usb_plug_z_offset=12;
 
-// Program Section //workaround
-if (part == "box_bottom") {
-    HW_389_box_buttom();
-} else if (part == "box_cover") {
-    HW_389_box_cover();
-} else if (part == "all_parts__") {
-    all_parts();
-} else {
-    all_parts();
+// M3 screw parameters
+screw_hole_tap_diameter=2.8;
+screw_thread_diamater=3;
+// No-drag through-hole diameter
+screw_hole_diameter=screw_thread_diamater+0.7;
+screw_stem_length=5;
+screw_head_diameter=5.5;
+
+first_hole_center_offset_x=15;
+first_hole_center_offset_y=5;
+screw_hole_x_distance=25;
+screw_hole_y_distance=52;
+
+pcb_board_thickness=1.5;
+// This makes sure the screw won't penetrate base.
+box_button_no_screw_thickness=1;
+box_bottom_thickness=screw_stem_length-pcb_board_thickness+box_button_no_screw_thickness;
+
+echo("*** Use M3x5 screw ***");
+echo("The minimum box bottom thickness is ", box_bottom_thickness);
+
+module usb_plug_hole() {
+    translate([usb_plug_x_offset, 0, usb_plug_z_offset]) 
+        cube([usb_plug_x_length, wall_thickness, usb_plug_z_length]);
 }
 
-module all_parts() {
-translate([0, 0, (height+wall_double_thickness/2)/2]) 
-    union() {
-        HW_389_box_buttom();
-        /*translate([-breakout_ribbon_cable_width+wall_double_thickness/2, 0, 0])
-            breakout();*/
-    }
-
- // This put cover next to box
- translate([width+(wall_double_thickness*2), 0, (wall_double_thickness/2+cover_wall_height)/2])
- // This displacement puts the cover on top
- // translate([0,0,(height+wall_double_thickness/2)+1]) rotate([0, 180, 0])
-    HW_389_box_cover();
+module dc_plug_hole() {
+    translate([dc_plug_x_offset, 0, dc_plug_z_offset]) 
+        cube([dc_plug_x_length, wall_thickness, dc_plug_z_length]);
 }
 
-/* Don't change these values */
-// Inner space length.
-length=106; // Note: if you change this, you must update screw_posistion_from_edge and the value at "why is this magic number?" accordingly.
-outlet_screw_hole_depth=35; // how far down is the outlet screw hole in supporting cylinder.
-support_cylinder_radius=outlet_screw_hole_diag*2+1;
-// Enlong the cylinder by this factor.
-support_cylinder_scale_factor=2.1;
-// distance between supporting cylinder and box top
-cylinder_top_gap=5.5-wall_double_thickness; // deduct cover thickness so the outlet will be flush.
-
-// Outlet screw off set from edge. Change according to your measurement with caution!
-// My desin references x,y,z 0 (center), and thus changing wall thickness won't inerference screw_position.
-screw_posistion_from_edge=11; // Outlet screw holes are 84mm apart. Must be precise!
-
-// Cover wall height in mm, not including cover thickness.
-cover_wall_height=3;
-
-module one_plug_hole() {
+module side_wall() {
     difference() {
-        cylinder(r=17.4625, h=15, center = true, $fn=50);
-        translate([-24.2875,-15,-cover_wall_height*2]) cube([10,37,15], center=false);
-        translate([14.2875,-15,-cover_wall_height*2]) cube([10,37,15], center=false);
-   }
+        cube([base_x_length, wall_thickness, base_z_length+box_bottom_thickness]);
+        translate([0, 0, box_bottom_thickness]) {
+            usb_plug_hole();
+            dc_plug_hole();
+        }
+    }
 }
 
-module HW_389_box_cover(width=width, length=length, height=height, screw_pos=screw_posistion_from_edge) {
+module HW_389_base() {
     union() {
-        difference() {        
-           difference() {
-                // outside wall
-                roundedCube([width + wall_double_thickness, length + wall_double_thickness, cover_wall_height+wall_double_thickness/2], center=true, r=rounded_corner_radius);
-                // inside wall
-                translate([0, 0, wall_double_thickness/2]) 
-                    roundedCube([width, length, cover_wall_height], center=true, r=rounded_corner_radius);
-            } 
-            
-            #import("LCD_Outline.stl");
-
-            // Outlet opening and screw hole
-            rotate([0,0,90]) 
-                translate([-length/2+12, 0, 0]) // why is this magic number?
-                    union() {
-                        translate([height+19.3915, 0, 0]) 
-                        {
-                            one_plug_hole();
-                        }
-                    
-                        translate([height-19.3915, 0, 0]){
-                            one_plug_hole();
-                        }
-                        
-                        // center hole. 4mm diameter.
-                        // printed holes tend to shrink, give it 5mm. 
-                        translate([height, 0, -3]) cylinder(r=2.5, h=20, $fn=50); 
-                        translate([height, 0, 3.5]) cylinder(r1=2.5, r2=3.3, h=3);            
-                    }
-        }
-    }
-}
-
-module box_walls(ow_width, ow_length, ow_height) {
-        difference() {
-            // box walls
+        translate([0, wall_thickness, 0]) {
             difference() {
-                // outside wall
-                roundedCube([ow_width, ow_length, ow_height], center=true, r=rounded_corner_radius,
-                zcorners=[false, true, true, false]);
-                // inside wall
-                translate([0, 0, wall_double_thickness/2]) 
-                    roundedCube([width, length, height], center=true, r=rounded_corner_radius);
-            } 
-        
-           // mains input wires hole on side wall
-           translate([ow_width/2, -(ow_length/4), -ow_height/4])
-                // cube's x, y, z parameters confirm to the overall axes, making reasoning simple. 
-                cube([wall_double_thickness*2, wires_hole_width, wires_hole_height], center=true);
+                cube([base_x_length, base_y_length, box_bottom_thickness]);
+                
+                first_screw_hole();
+                second_screw_hole();    
+                third_screw_hole();
+                fourth_screw_hole();
+            }
+            cube([base_x_length, base_y_length, box_button_no_screw_thickness]);
+        }
             
-           // control input wires hole on the other side wall
-           translate([-ow_width/2, (ow_length/4), -ow_height/3])
-            rotate([0, 90, 0])
-                cylinder(d=relay_control_wires_hole_diameter, h=wall_double_thickness, center=true, $fn=50);
+        side_wall();
     }
 }
 
-module outlet_screw_cylinder(length, ow_height, screw_pos) {
-    cylinder_height = ow_height - cylinder_top_gap;
-
-    translate([0, -length/2, -ow_height/2])
-        difference(){
-                // the support cylinder
-                scale([1, support_cylinder_scale_factor, 1]) 
-                    cylinder(h=cylinder_height, 
-                            r1=support_cylinder_radius, 
-                            r2=support_cylinder_radius, $fn=60, center=false);
-                
-                translate([0, -support_cylinder_radius*1.5, ow_height/2+wall_double_thickness]) // to make tab strong, its thickness equals to wall_double_thickness
-                 {
-                    scale([1, 1.5, 1])
-                        // remove half of the outer cylinder                  
-                        cube([support_cylinder_radius*2, support_cylinder_radius*2, 
-                              ow_height], true);
-                    // screw hole in the outside cylinder tab
-                    translate([0, 2, -3])
-                        cylinder(r=bottom_tab_screw_hole_diag/2, h=ow_height*2, $fn=50, center=true);
-                }
-                    
-                // screw hole in the cylinder
-                translate([0, screw_pos, cylinder_height-outlet_screw_hole_depth+1]) {
-                        cylinder(r=outlet_screw_hole_diag/2, h=outlet_screw_hole_depth, $fn=50, center=false);
-            }
-        }
+module screw_hole() {
+    cylinder(d=screw_hole_tap_diameter, h=wall_thickness*20, center=false, $fn=50);
 }
 
-module lengh_support(ow_width, ow_height, wall_double_thickness) {
-    rotate([0,0,90]) 
-        translate([0, -(ow_width/2)+wall_double_thickness/2, -ow_height/2])
-            scale([1, 0.6, 1]) // support_cylinder_radius shrink widthwise, leave more room for outlet body.
-                difference(){
-                    cylinder(ow_height, support_cylinder_radius, support_cylinder_radius, $fn=60);
-                    translate([-support_cylinder_radius, -support_cylinder_radius*2-1, -1])
-                        cube([support_cylinder_radius*2, support_cylinder_radius*2, ow_height+wall_double_thickness]);
-                }
+module first_screw_hole() {
+    translate([first_hole_center_offset_x, first_hole_center_offset_y, -1]) 
+        screw_hole();
 }
 
-/*
- * Function HW_389_box_buttom()
- * Draw the box bottom
- */
-module HW_389_box_buttom(width=width, length=length, height=height, screw_pos=screw_posistion_from_edge) {
-    ow_width = width+wall_double_thickness;
-    ow_length = length+wall_double_thickness;
-    ow_height = height+wall_double_thickness/2;
-   
-    box_walls(ow_width, ow_length, ow_height);
-      
-    // outlet screw cylinder
-    outlet_screw_cylinder(length, ow_height, screw_pos);
-    // the other one
-    rotate([0,0,180])  
-        outlet_screw_cylinder(length, ow_height, screw_pos);
-    
-    // support lengh-wide
-    lengh_support(ow_width, ow_height, wall_double_thickness);
-    
-    // the other support lengh-wide
-    rotate([0,0,180]) 
-        lengh_support(ow_width, ow_height, wall_double_thickness);
+module second_screw_hole() {
+    translate([first_hole_center_offset_x, first_hole_center_offset_y+screw_hole_y_distance, -1]) 
+        screw_hole();
 }
+
+module third_screw_hole() {
+    translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y+screw_hole_y_distance, -1]) 
+        screw_hole();
+}
+
+module fourth_screw_hole() {
+    translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y, -1]) 
+        screw_hole();
+}
+
+
+
+HW_389_base();
