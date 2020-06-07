@@ -6,10 +6,10 @@
 use <roundedCube.scad>
 include <screw_matrics.scad>
 
-wall_thickness=1;
+wall_thickness=2;
 
 // Add this to measured sizes and get opening sizes. 
-free_play_size=2;
+free_play_size=1;
 
 // both x and y minimum length is 60. Can be longer to accomdate larger panel size.
 base_x_length=60;
@@ -45,8 +45,8 @@ usb_plug_x_length=7.5;
 usb_plug_z_length=3;
 usb_plug_z_offset=12+x_side_wall_holes_origin_z_offset;
 
-
-side_wall_z_length=base_z_length+x_side_wall_holes_origin_z_offset;
+echo("side_wall_z_length=base_z_length+x_side_wall_holes_origin_z_offset. Base_z_height, 17mm, is the minimum height covering HW-389 and ESP8266 V3 board.");
+echo("x_side_wall_holes_origin_z_offset is ", x_side_wall_holes_origin_z_offset);
 
 module pcb_board_one_raise() {
     hull() {
@@ -69,32 +69,35 @@ module pcb_board_raise() {
 
 module usb_plug_hole() {
     translate([usb_plug_x_offset, 0, usb_plug_z_offset]) 
-        cube([usb_plug_x_length, wall_thickness, usb_plug_z_length]);
+        cube([usb_plug_x_length+free_play_size, wall_thickness, usb_plug_z_length+free_play_size]);
 }
 
 module dc_plug_hole() {
     translate([dc_plug_x_offset, 0, dc_plug_z_offset]) 
-        cube([dc_plug_x_length, wall_thickness, dc_plug_z_length]);
+        cube([dc_plug_x_length+free_play_size, wall_thickness, dc_plug_z_length+free_play_size]);
+}
+
+
+module blank_x_side_wall(x_length, y_length, z_length) {
+    cube([x_length, y_length, z_length]);
 }
 
 /* The wall along x axis, from origin */
-module x_side_wall() {
+module x_side_wall(base_x_length, base_y_length, side_wall_z_length) {
     difference() {
-        cube([base_x_length, wall_thickness, side_wall_z_length]);
-        translate([0, 0, 0]) {
-            usb_plug_hole();
-            dc_plug_hole();
-        }
+        blank_x_side_wall(base_x_length, base_y_length, side_wall_z_length);
+        usb_plug_hole();
+        dc_plug_hole();
     }
 }
 
 /* The wall along y axis, from origin */
-module y_side_wall() {
-    cube([wall_thickness, base_y_length+wall_thickness, side_wall_z_length]);
+module y_side_wall(base_x_length, base_y_length, side_wall_z_length) {
+    cube([base_x_length, base_y_length+wall_thickness*2, side_wall_z_length]);
 }
 
-
-module HW_389_base() {
+/* side_wall_z_length includes bottom wall thickness */
+module HW_389_base(base_x_length, base_y_length, side_wall_z_length) {
     union() {
         translate([wall_thickness, 0, 0]) {
             translate([0, wall_thickness, 0]) {
@@ -114,10 +117,18 @@ module HW_389_base() {
                 // The plate to plug through holes, make sure there is box_button_no_screw_thickness at bottom. 
                 cube([base_x_length, base_y_length, box_button_no_screw_thickness]);
             }
-            x_side_wall();
+            x_side_wall(base_x_length, wall_thickness, side_wall_z_length);
+            
+            translate([0, base_y_length+wall_thickness, 0]) {
+                blank_x_side_wall(base_x_length, wall_thickness, side_wall_z_length);
+            }
         }
         
-        y_side_wall();
+        y_side_wall(wall_thickness, base_y_length, side_wall_z_length);
+        
+        translate([base_x_length+wall_thickness, 0, 0]) {
+            y_side_wall(wall_thickness, base_y_length, side_wall_z_length);
+        }
     }
 }
 
@@ -145,6 +156,4 @@ module fourth_screw_hole() {
         screw_hole();
 }
 
-
-
-HW_389_base();
+HW_389_base(base_x_length+2, base_y_length+2, 17+9+5);
