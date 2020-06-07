@@ -1,4 +1,6 @@
-bezel_height=6;
+1602LCD_z_length=6;
+1602LCD_x_length=90;
+1602LCD_y_length=46;
 
 // Hole for the extruded pins on the board
 pin_hole_depth=4.2;
@@ -22,16 +24,16 @@ module screw_hole_plug() {
 
 module deeper_pin_hole() {
     translate([35, 37, 1.8]) 
-        #cube([pin_hole_length, pin_hole_height, pin_hole_depth]);
+        cube([pin_hole_length, pin_hole_height, pin_hole_depth]);
 }
-
 
 module 1602bezel() {
-    difference() {
-        import("1602LCD_bezel_fixed.stl");
-        #deeper_pin_hole();
-    }
-    // screw_hole_plug();
+    translate([1602LCD_x_length, -1602LCD_y_length, 1602LCD_z_length])
+        rotate([0, 180, 0]) // Flip to make it face up.
+            difference() {
+                import("1602LCD_bezel_fixed.stl");
+                deeper_pin_hole();
+            }
 }
 
-1602bezel();
+*1602bezel();

@@ -8,6 +8,7 @@ include <screw_matrics.scad>
 
 touch_pad_board_x_length=48.1;
 touch_pad_board_y_length=79;
+// This is PCB board thickness. Fixed. 
 touch_pad_board_z_length=1.56;
 
 screw_hole_y_distance=72.5;
@@ -26,13 +27,12 @@ pin_cover_y_length=9+pin_cover_y_wall_thickness;
 pin_cover_x_length=touch_pad_board_x_length;
 pin_cover_z_length=6;
 
-
 pin_cover_screw_sink_diameter=number4_screw_head_diameter + 0.5;
 pin_cover_screw_sink_z_depth=2.8;
 
 // this is for consumer use. Minimum hole depth for #4 5/16 screw to seat. 
-base_screw_hole_z_depth=number4_screw_stem_length-(pin_cover_z_length-pin_cover_screw_sink_z_depth)-touch_pad_board_z_length;
-echo("base screw hole minimum depth is ", base_screw_hole_z_depth);
+touch_pad_base_screw_hole_z_depth=number4_screw_stem_length-(pin_cover_z_length-pin_cover_screw_sink_z_depth)-touch_pad_board_z_length;
+echo("base screw hole minimum depth is ", touch_pad_base_screw_hole_z_depth);
 
 pin_cover_rounded_corner_radius=2;
 
@@ -47,7 +47,7 @@ module pin_cover_pin_cut_area() {
         #cube([pin_area_x_length, pin_area_y_length, pin_area_z_length]);
 }
 
-module pin_cover() {
+module touch_pad_pin_cover() {
     difference() {
         roundedCube([pin_cover_x_length, pin_cover_y_length, pin_cover_z_length], center=false, r=pin_cover_rounded_corner_radius,
             x=true, xcorners=[false, true, true, false],
@@ -136,12 +136,12 @@ module pin_and_chip_hole() {
         cube([pin_and_chip_hole_edge_length, pin_and_chip_hole_edge_length, touch_pad_board_z_length*5]);
 }
 
-%touch_pad();
+*touch_pad();
 
 // This puts the cover aside the pad
 translate([0, -pin_area_y_length*2-5, 0])
-    pin_cover();
+    *touch_pad_pin_cover();
 
 // This puts the cover onto the pad, to double check fit
 translate([0, -pin_cover_y_wall_thickness, touch_pad_board_z_length])
-    %pin_cover();
+    *touch_pad_pin_cover();
