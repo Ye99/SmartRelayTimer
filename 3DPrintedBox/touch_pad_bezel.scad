@@ -4,6 +4,7 @@
 */
 
 use <roundedCube.scad>
+include <screw_matrics.scad>
 
 touch_pad_board_x_length=48.1;
 touch_pad_board_y_length=79;
@@ -12,13 +13,6 @@ touch_pad_board_z_length=1.56;
 screw_hole_y_distance=72.5;
 screw_hole_x_distance=41;
 
-// #4 screw parameters
-screw_hole_tap_diameter=2.78;
-screw_thread_diamater=2.84;
-// No-drag through-hole diameter
-screw_hole_diameter=screw_thread_diamater+0.7;
-screw_stem_length=8;
-screw_head_diameter=5.5;
 first_hole_center_offset_y=3;
 first_hole_center_offset_x=4;
 
@@ -33,11 +27,11 @@ pin_cover_x_length=touch_pad_board_x_length;
 pin_cover_z_length=6;
 
 
-pin_cover_screw_sink_diameter=screw_head_diameter + 0.5;
+pin_cover_screw_sink_diameter=number4_screw_head_diameter + 0.5;
 pin_cover_screw_sink_z_depth=2.8;
 
 // this is for consumer use. Minimum hole depth for #4 5/16 screw to seat. 
-base_screw_hole_z_depth=screw_stem_length-(pin_cover_z_length-pin_cover_screw_sink_z_depth)-touch_pad_board_z_length;
+base_screw_hole_z_depth=number4_screw_stem_length-(pin_cover_z_length-pin_cover_screw_sink_z_depth)-touch_pad_board_z_length;
 echo("base screw hole minimum depth is ", base_screw_hole_z_depth);
 
 pin_cover_rounded_corner_radius=2;
@@ -88,11 +82,11 @@ module touch_pad() {
 }
 
 module screw_hole() {
-    cylinder(d=screw_hole_tap_diameter, h=touch_pad_board_z_length*20, center=false, $fn=50);
+    cylinder(d=number4_screw_hole_tap_diameter, h=touch_pad_board_z_length*20, center=false, $fn=50);
 }
 
 module pin_cover_screw_hole() {
-    cylinder(d=screw_hole_diameter, h=touch_pad_board_z_length*50, center=false, $fn=50);
+    cylinder(d=number4_screw_hole_diameter, h=touch_pad_board_z_length*50, center=false, $fn=50);
 }
 
 /* Screw sink so we can use shorter screws like 5/16 inch */
