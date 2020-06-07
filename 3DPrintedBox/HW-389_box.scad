@@ -96,8 +96,11 @@ module y_side_wall(base_x_length, base_y_length, side_wall_z_length, wall_thickn
     cube([base_x_length, base_y_length+wall_thickness*2, side_wall_z_length]);
 }
 
-/* base_x_length, base_y_length is inner net space, doesn't include wall thickness.
- side_wall_z_length includes bottom wall thickness */
+/* 
+   base_x_length, base_y_length is inner net space, doesn't include wall thickness.
+   side_wall_z_length includes bottom wall thickness.
+   The red cylinder top marks clearance for HW-389 and ESP8266 V3 board.
+*/
 module HW_389_base(base_x_length, base_y_length, side_wall_z_length, wall_thickness) {
     union() {
         translate([wall_thickness, 0, 0]) {
@@ -109,10 +112,10 @@ module HW_389_base(base_x_length, base_y_length, side_wall_z_length, wall_thickn
                             pcb_board_raise();
                     }
                     
-                    first_screw_hole(wall_thickness);
-                    second_screw_hole(wall_thickness);    
-                    third_screw_hole(wall_thickness);
-                    fourth_screw_hole(wall_thickness);
+                    first_screw_hole(wall_thickness, side_wall_z_length);
+                    second_screw_hole(wall_thickness, side_wall_z_length);    
+                    third_screw_hole(wall_thickness, side_wall_z_length);
+                    fourth_screw_hole(wall_thickness, side_wall_z_length);
                 }
                 
                 // The plate to plug through holes, make sure there is box_button_no_screw_thickness at bottom. 
@@ -133,28 +136,28 @@ module HW_389_base(base_x_length, base_y_length, side_wall_z_length, wall_thickn
     }
 }
 
-module screw_hole(wall_thickness) {
-    #cylinder(d=number4_screw_hole_tap_diameter, h=wall_thickness*20, center=false, $fn=50);
+module screw_hole(wall_thickness, side_wall_z_length) {
+    #cylinder(d=number4_screw_hole_tap_diameter, h=side_wall_z_length, center=false, $fn=50);
 }
 
-module first_screw_hole(wall_thickness) {
-    translate([first_hole_center_offset_x, first_hole_center_offset_y, -1]) 
-        screw_hole(wall_thickness);
+module first_screw_hole(wall_thickness, side_wall_z_length) {
+    translate([first_hole_center_offset_x, first_hole_center_offset_y, 0]) 
+        screw_hole(wall_thickness, side_wall_z_length);
 }
 
-module second_screw_hole(wall_thickness) {
-    translate([first_hole_center_offset_x, first_hole_center_offset_y+screw_hole_y_distance, -1]) 
-        screw_hole(wall_thickness);
+module second_screw_hole(wall_thickness, side_wall_z_length) {
+    translate([first_hole_center_offset_x, first_hole_center_offset_y+screw_hole_y_distance, 0]) 
+        screw_hole(wall_thickness, side_wall_z_length);
 }
 
-module third_screw_hole(wall_thickness) {
-    translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y+screw_hole_y_distance, -1]) 
-        screw_hole(wall_thickness);
+module third_screw_hole(wall_thickness, side_wall_z_length) {
+    translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y+screw_hole_y_distance, 0]) 
+        screw_hole(wall_thickness, side_wall_z_length);
 }
 
-module fourth_screw_hole(wall_thickness) {
-    translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y, -1]) 
-        screw_hole(wall_thickness);
+module fourth_screw_hole(wall_thickness, side_wall_z_length) {
+    translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y, 0]) 
+        screw_hole(wall_thickness, side_wall_z_length);
 }
 
 HW_389_base(base_x_length+2, base_y_length+2, 17+9+5, 2);
