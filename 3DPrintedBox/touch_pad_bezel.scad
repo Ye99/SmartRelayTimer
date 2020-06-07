@@ -30,7 +30,7 @@ pin_cover_z_length=6;
 pin_cover_screw_sink_diameter=number4_screw_head_diameter + 0.5;
 pin_cover_screw_sink_z_depth=2.8;
 
-// this is for consumer use. Minimum hole depth for #4 5/16 screw to seat. 
+// This is for consumer use. Minimum hole depth for #4 5/16 screw to seat. 
 touch_pad_base_screw_hole_z_depth=number4_screw_stem_length-(pin_cover_z_length-pin_cover_screw_sink_z_depth)-touch_pad_board_z_length;
 echo("base screw hole minimum depth is ", touch_pad_base_screw_hole_z_depth);
 
@@ -82,7 +82,7 @@ module touch_pad() {
 }
 
 module screw_hole() {
-    cylinder(d=number4_screw_hole_tap_diameter, h=touch_pad_board_z_length*20, center=false, $fn=50);
+    #cylinder(d=number4_screw_hole_tap_diameter, h=touch_pad_base_screw_hole_z_depth*2, center=false, $fn=50);
 }
 
 module pin_cover_screw_hole() {
@@ -112,28 +112,30 @@ module second_pin_cover_screw_hole() {
 }
 
 module first_screw_hole() {
-        translate([first_hole_center_offset_x, first_hole_center_offset_y, -1]) 
+        translate([first_hole_center_offset_x, first_hole_center_offset_y, -touch_pad_base_screw_hole_z_depth]) 
             screw_hole();
 }
 
 module second_screw_hole() {
-        translate([first_hole_center_offset_x, first_hole_center_offset_y+screw_hole_y_distance, -1]) 
+        translate([first_hole_center_offset_x, first_hole_center_offset_y+screw_hole_y_distance, -touch_pad_base_screw_hole_z_depth]) 
             screw_hole();
 }
 
 module third_screw_hole() {
-        translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y+screw_hole_y_distance, -1]) 
+        translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y+screw_hole_y_distance, -touch_pad_base_screw_hole_z_depth]) 
             screw_hole();
 }
 
 module fourth_screw_hole() {
-        translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y, -1]) 
+        translate([first_hole_center_offset_x+screw_hole_x_distance, first_hole_center_offset_y, -touch_pad_base_screw_hole_z_depth]) 
             screw_hole();
 }
 
 module pin_and_chip_hole() {
-    translate([(touch_pad_board_x_length-pin_and_chip_hole_edge_length)/2, touch_pad_board_y_length-pin_and_chip_hole_edge_length, -1]) 
-        cube([pin_and_chip_hole_edge_length, pin_and_chip_hole_edge_length, touch_pad_board_z_length*5]);
+    translate([(touch_pad_board_x_length-pin_and_chip_hole_edge_length)/2, 
+                touch_pad_board_y_length-pin_and_chip_hole_edge_length, 
+                -pin_and_chip_hole_edge_length]) 
+        #cube([pin_and_chip_hole_edge_length, pin_and_chip_hole_edge_length, pin_and_chip_hole_edge_length]);
 }
 
 *touch_pad();
