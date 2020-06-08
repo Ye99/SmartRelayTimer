@@ -4,6 +4,8 @@
 */
 
 use <roundedCube.scad>
+use <transforms.scad>
+
 include <screw_matrics.scad>
 
 touch_pad_board_x_length=48.1;
@@ -44,7 +46,7 @@ pin_area_z_length=4;
 
 module pin_cover_pin_cut_area() {
     translate([(touch_pad_board_x_length-pin_and_chip_hole_edge_length)/2, pin_cover_y_wall_thickness, 0]) 
-        #cube([pin_area_x_length, pin_area_y_length, pin_area_z_length]);
+        cube([pin_area_x_length, pin_area_y_length, pin_area_z_length]);
 }
 
 module touch_pad_pin_cover() {
@@ -65,24 +67,25 @@ module touch_pad_pin_cover() {
 }
 
 module touch_pad() {
-    union() {
-        //difference() {
-            cube([touch_pad_board_x_length, touch_pad_board_y_length, touch_pad_board_z_length]);
-            
-            first_screw_hole();
-            second_screw_hole();    
-            third_screw_hole();
-            fourth_screw_hole();
-            
-            // pin_and_chip_hole();
-        //}
-    
-        pin_and_chip_hole();
-    }
+    down(touch_pad_board_z_length)
+        union() {
+            //difference() {
+                cube([touch_pad_board_x_length, touch_pad_board_y_length, touch_pad_board_z_length]);
+                
+                first_screw_hole();
+                second_screw_hole();    
+                third_screw_hole();
+                fourth_screw_hole();
+                
+                // pin_and_chip_hole();
+            //}
+        
+            pin_and_chip_hole();
+        }
 }
 
 module screw_hole() {
-    #cylinder(d=number4_screw_hole_tap_diameter, h=touch_pad_base_screw_hole_z_depth*2, center=false, $fn=50);
+    cylinder(d=number4_screw_hole_tap_diameter, h=touch_pad_base_screw_hole_z_depth*2, center=false, $fn=50);
 }
 
 module pin_cover_screw_hole() {
@@ -92,7 +95,7 @@ module pin_cover_screw_hole() {
 /* Screw sink so we can use shorter screws like 5/16 inch */
 module pin_cover_screw_sink_hole() {
     translate([0, 0, pin_cover_z_length-pin_cover_screw_sink_z_depth]) 
-        #cylinder(d=pin_cover_screw_sink_diameter, h=pin_cover_screw_sink_z_depth, center=false, $fn=50);
+        cylinder(d=pin_cover_screw_sink_diameter, h=pin_cover_screw_sink_z_depth, center=false, $fn=50);
 }
 
 module first_pin_cover_screw_hole() {
@@ -135,7 +138,7 @@ module pin_and_chip_hole() {
     translate([(touch_pad_board_x_length-pin_and_chip_hole_edge_length)/2, 
                 touch_pad_board_y_length-pin_and_chip_hole_edge_length, 
                 -pin_and_chip_hole_edge_length]) 
-        #cube([pin_and_chip_hole_edge_length, pin_and_chip_hole_edge_length, pin_and_chip_hole_edge_length]);
+        cube([pin_and_chip_hole_edge_length, pin_and_chip_hole_edge_length, pin_and_chip_hole_edge_length]);
 }
 
 *touch_pad();
