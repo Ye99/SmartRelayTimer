@@ -8,16 +8,17 @@ use <BOSL/transforms.scad>
 
 include <screw_matrics.scad>
 
-touch_pad_board_x_length=48.1;
-touch_pad_board_y_length=79;
-// This is PCB board thickness. Fixed. 
+// PCB board dimensions. 
+touch_pad_board_x_length=49.1;
+touch_pad_board_y_length=80;
+// This is PCB board thickness.
 touch_pad_board_z_length=1.56;
 
 screw_hole_y_distance=72.5;
 screw_hole_x_distance=41;
 
-first_hole_center_offset_y=3;
-first_hole_center_offset_x=4;
+first_hole_center_offset_y=3.5;
+first_hole_center_offset_x=4.5;
 
 // Leave square hole for pin wiring, and room for surface mounted chip.
 pin_and_chip_hole_edge_length=20;
