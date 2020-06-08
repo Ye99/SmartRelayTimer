@@ -3,19 +3,12 @@
     Raspberry Pi breakout holder and electrical box. 
 */
 
+include <size_constants.scad>
 use <roundedCube.scad>
 
 // Choose, which part you want to see!
 part = "all_parts__";  //[all_parts__:All Parts,electrical_box_bottom:ElectrialBoxBottom,electrical_box_cover:ElectricalBoxCover]
 
-// Standard width is 69.33mm. This is inner space width.
-width=52; //[51:85]
-// Inner space height. Default 41mm
-height=41;  // [37:70]
-
-// Wall thickness in mm, add to width and height. Actuall wall (including cover) thickness is
-// half of this value. 
-wall_double_thickness=3.5; // [1:4]
 // Outlet screw diameter (mm) for the holes at 2 ends
 outlet_screw_hole_diag=3.4; // [3:6]
 // The screw hole on box bottom tab, to secure the box.
@@ -46,12 +39,12 @@ if (part == "electrical_box_bottom") {
 } else if (part == "electrical_box_cover") {
     electricalbox_cover();
 } else if (part == "all_parts__") {
-    all_parts();
+    electricalbox();
 } else {
-    all_parts();
+    electricalbox();
 }
 
-module all_parts() {
+module electricalbox() {
 translate([0, 0, (height+wall_double_thickness/2)/2]) 
     union() {
         electricalbox_buttom();
@@ -66,9 +59,6 @@ translate([0, 0, (height+wall_double_thickness/2)/2])
     electricalbox_cover();
 }
 
-/* Don't change these values */
-// Inner space length.
-length=106; // Note: if you change this, you must update screw_posistion_from_edge and the value at "why is this magic number?" accordingly.
 outlet_screw_hole_depth=35; // how far down is the outlet screw hole in supporting cylinder.
 support_cylinder_radius=outlet_screw_hole_diag*2+1;
 // Enlong the cylinder by this factor.

@@ -54,13 +54,13 @@ module arrange_to_four_corners(control_compartment_x_length, control_compartment
     translate([cover_hole_to_edge_offset_x, 
                 cover_hole_to_edge_offset_y, 
                 control_compartment_wall_thickness])
-            children();
+        children();
     
     translate([cover_hole_to_edge_offset_x, 
                 control_compartment_y_length+double_wall_thickness-cover_hole_to_edge_offset_y, 
                 control_compartment_wall_thickness])
-            zrot(-90)
-                children();
+        zrot(-90)
+            children();
     
     translate([control_compartment_y_length+double_wall_thickness-cover_hole_to_edge_offset_x, 
                 control_compartment_y_length+double_wall_thickness-cover_hole_to_edge_offset_y, 
@@ -129,7 +129,6 @@ module wall_screw_tab() {
     }
 }
 
-
 /* The first childeren is HW_389_base. 
    The second children is wall screw tab */
 module add_screw_tabs_to_box_bottom(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
@@ -178,4 +177,4 @@ module cover_besides_box(control_compartment_x_length, control_compartment_y_len
         children();
 }
 
-control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
+*control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
