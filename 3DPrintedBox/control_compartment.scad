@@ -113,6 +113,10 @@ module cover(control_compartment_x_length, control_compartment_y_length, control
             
         cover_screws();
     }
+    
+    left(control_compartment_wall_thickness)
+        zrot(90)
+            touch_pad_pin_cover();
 }
 
 wall_screw_tab_height=19;
@@ -152,18 +156,31 @@ module add_screw_tabs_to_box_bottom(control_compartment_x_length, control_compar
     }
 }
 
-module buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
-    add_screw_tabs_to_box_bottom(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
-        HW_389_base(control_compartment_x_length, 
-                    control_compartment_y_length, 
-                    control_compartment_z_length, 
-                    control_compartment_wall_thickness);
-        wall_screw_tab();
+module cut_sensor_wire_hole(control_compartment_x_length, 
+    control_compartment_y_length, 
+    control_compartment_z_length, 
+    control_compartment_wall_thickness, 
+    sensor_wire_hole_diameter) {
+    translate([control_compartment_x_length/5*3, control_compartment_y_length, control_compartment_z_length/3])
+            xrot(90)
+                #cylinder(d=sensor_wire_hole_diameter, h=control_compartment_wall_thickness*10, center=true, $fn=50);
+}
+
+module buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness, sensor_wire_hole_diameter) {
+    difference() {
+        add_screw_tabs_to_box_bottom(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
+            HW_389_base(control_compartment_x_length, 
+                        control_compartment_y_length, 
+                        control_compartment_z_length, 
+                        control_compartment_wall_thickness);
+            wall_screw_tab();
+        }
+        cut_sensor_wire_hole(control_compartment_x_length, 
+            control_compartment_y_length, 
+            control_compartment_z_length, 
+            control_compartment_wall_thickness, 
+            sensor_wire_hole_diameter);
     }
-    
-    // Cover on box, for checking fit. Not included in model output. 
-    translate([0, -20, 0])
-        *touch_pad_pin_cover();
 }
 
 module cover_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
@@ -174,13 +191,18 @@ module cover_group(control_compartment_x_length, control_compartment_y_length, c
     }
 }
 
-module control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness, part) {
+module control_compartment(control_compartment_x_length, 
+    control_compartment_y_length, 
+    control_compartment_z_length, 
+    control_compartment_wall_thickness, 
+    part,
+    sensor_wire_hole_diameter) {
     if (part == "bottom") {
-        buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
+        buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
     } else if (part == "cover") {
         cover_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
     } else {
-        buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
+        buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
         cover_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
     }
 }
@@ -191,4 +213,9 @@ module cover_besides_box(control_compartment_x_length, control_compartment_y_len
         children();
 }
 
-control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness, "bottom");
+control_compartment(control_compartment_x_length, 
+    control_compartment_y_length, 
+    control_compartment_z_length, 
+    control_compartment_wall_thickness, 
+    "all",
+    6);
