@@ -31,10 +31,10 @@ module cut_signal_wire_hole(control_compartment_x_length, control_compartment_y_
 
 difference() {
     union() {
-        electricalbox();
+        electricalbox("bottom"); // "cover", "bottom", "all"
         left(control_compartment_x_length+wall_thickness*2+width/2+wall_thickness)
             fwd(length/2+wall_thickness)
-                control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness);
+                control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness, "bottom");
     }
 
     cut_signal_wire_hole(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness);

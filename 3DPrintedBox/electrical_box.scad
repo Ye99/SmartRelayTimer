@@ -5,9 +5,10 @@
 
 include <size_constants.scad>
 use <roundedCube.scad>
+use <BOSL/transforms.scad>
 
 // Choose, which part you want to see!
-part = "all_parts__";  //[all_parts__:All Parts,electrical_box_bottom:ElectrialBoxBottom,electrical_box_cover:ElectricalBoxCover]
+part = "all_parts__";  //[all:All Parts,bottom:ElectrialBoxBottom,cover:ElectricalBoxCover]
 
 // Outlet screw diameter (mm) for the holes at 2 ends
 outlet_screw_hole_diag=3.4; // [3:6]
@@ -33,30 +34,35 @@ cover_alignment_tab_thickness=wall_double_thickness*2;
 // The larger this value, the more cover free-play allowed.
 cover_alignment_tab_tolerance=0.2;
 
-// Program Section //workaround
-if (part == "electrical_box_bottom") {
-    electricalbox_buttom();
-} else if (part == "electrical_box_cover") {
-    electricalbox_cover();
-} else if (part == "all_parts__") {
-    electricalbox();
-} else {
-    electricalbox();
+electricalbox(part);
+
+module electricalbox(part) {
+    if (part == "bottom") {
+        electricalbox_buttom();
+    } else if (part == "cover") {
+        right(wall_double_thickness)
+            electricalbox_cover();
+    } else if (part == "all") {
+        electricalbox_all();
+    }
 }
 
-module electricalbox() {
-translate([0, 0, (height+wall_double_thickness/2)/2]) 
-    union() {
-        electricalbox_buttom();
-        /*translate([-breakout_ribbon_cable_width+wall_double_thickness/2, 0, 0])
-            breakout();*/
-    }
+module put_bottom_to_z_zero() {
+    translate([0, 0, (height+wall_double_thickness/2)/2]) 
+        children();
+}
 
- // This put cover next to box
- translate([width+(wall_double_thickness*2), 0, (wall_double_thickness/2+cover_wall_height)/2])
- // This displacement puts the cover on top
- // translate([0,0,(height+wall_double_thickness/2)+1]) rotate([0, 180, 0])
-    electricalbox_cover();
+module put_cover_to_z_zero() {
+    translate([0, 0, (wall_double_thickness/2+cover_wall_height)/2]) 
+        children();
+}
+
+module electricalbox_all() {
+    electricalbox_buttom();
+
+    // This put cover next to box
+    translate([width+(wall_double_thickness*2), 0, 0])
+            electricalbox_cover();
 }
 
 outlet_screw_hole_depth=35; // how far down is the outlet screw hole in supporting cylinder.
@@ -86,40 +92,42 @@ module cover_alignment_tab() {
 }
 
 module electricalbox_cover(width=width, length=length, height=height, screw_pos=screw_posistion_from_edge) {
-    union() {
-        difference() {        
-           difference() {
-                // outside wall
-                roundedCube([width + wall_double_thickness, length + wall_double_thickness, cover_wall_height+wall_double_thickness/2], center=true, r=rounded_corner_radius);
-                // inside wall
-                translate([0, 0, wall_double_thickness/2]) 
-                    roundedCube([width, length, cover_wall_height], center=true, r=rounded_corner_radius);
-            } 
+    put_cover_to_z_zero() {
+        union() {
+            difference() {        
+               difference() {
+                    // outside wall
+                    roundedCube([width + wall_double_thickness, length + wall_double_thickness, cover_wall_height+wall_double_thickness/2], center=true, r=rounded_corner_radius);
+                    // inside wall
+                    translate([0, 0, wall_double_thickness/2]) 
+                        roundedCube([width, length, cover_wall_height], center=true, r=rounded_corner_radius);
+                } 
 
-            // Outlet opening and screw hole
-            rotate([0,0,90]) 
-                translate([-length/2+12, 0, 0]) // why is this magic number?
-                    union() {
-                        translate([height+19.3915, 0, 0]) 
-                        {
-                            one_plug_hole();
-                        }
-                    
-                        translate([height-19.3915, 0, 0]){
-                            one_plug_hole();
-                        }
+                // Outlet opening and screw hole
+                rotate([0,0,90]) 
+                    translate([-length/2+12, 0, 0]) // why is this magic number?
+                        union() {
+                            translate([height+19.3915, 0, 0]) 
+                            {
+                                one_plug_hole();
+                            }
                         
-                        // center hole. 4mm diameter.
-                        // printed holes tend to shrink, give it 5mm. 
-                        translate([height, 0, -3]) cylinder(r=2.5, h=20, $fn=50); 
-                        translate([height, 0, 3.5]) cylinder(r1=2.5, r2=3.3, h=3);            
-                    }
+                            translate([height-19.3915, 0, 0]){
+                                one_plug_hole();
+                            }
+                            
+                            // center hole. 4mm diameter.
+                            // printed holes tend to shrink, give it 5mm. 
+                            translate([height, 0, -3]) cylinder(r=2.5, h=20, $fn=50); 
+                            translate([height, 0, 3.5]) cylinder(r1=2.5, r2=3.3, h=3);            
+                        }
+            }
+            
+            translate([-width/2+cover_alignment_tab_tolerance, length/3, 0]) 
+                cover_alignment_tab();
+            translate([width/2-cover_alignment_tab_tolerance-cover_alignment_tab_thickness, length/3, 0]) 
+                cover_alignment_tab();
         }
-        
-        translate([-width/2+cover_alignment_tab_tolerance, length/3, 0]) 
-            cover_alignment_tab();
-        translate([width/2-cover_alignment_tab_tolerance-cover_alignment_tab_thickness, length/3, 0]) 
-            cover_alignment_tab();
     }
 }
 
@@ -195,19 +203,27 @@ module electricalbox_buttom(width=width, length=length, height=height, screw_pos
     ow_width = width+wall_double_thickness;
     ow_length = length+wall_double_thickness;
     ow_height = height+wall_double_thickness/2;
-   
-    box_walls(ow_width, ow_length, ow_height);
-      
-    // outlet screw cylinder
-    outlet_screw_cylinder(length, ow_height, screw_pos);
-    // the other one
-    rotate([0,0,180])  
+    
+    put_bottom_to_z_zero() {
+        box_walls(ow_width, ow_length, ow_height);
+          
+        // outlet screw cylinder
         outlet_screw_cylinder(length, ow_height, screw_pos);
-    
-    // support lengh-wide
-    lengh_support(ow_width, ow_height, wall_double_thickness);
-    
-    // the other support lengh-wide
-    rotate([0,0,180]) 
+        // the other one
+        rotate([0,0,180])  
+            outlet_screw_cylinder(length, ow_height, screw_pos);
+        
+        // support lengh-wide
         lengh_support(ow_width, ow_height, wall_double_thickness);
+        
+        // the other support lengh-wide
+        rotate([0,0,180]) 
+            lengh_support(ow_width, ow_height, wall_double_thickness);
+        
+        up((height+wall_double_thickness*3)/2)
+            xrot(180)
+                %electricalbox_cover();
+    }
+    
+
 }

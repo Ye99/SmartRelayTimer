@@ -152,7 +152,7 @@ module add_screw_tabs_to_box_bottom(control_compartment_x_length, control_compar
     }
 }
 
-module control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
+module buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
     add_screw_tabs_to_box_bottom(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
         HW_389_base(control_compartment_x_length, 
                     control_compartment_y_length, 
@@ -161,14 +161,28 @@ module control_compartment(control_compartment_x_length, control_compartment_y_l
         wall_screw_tab();
     }
     
+    // Cover on box, for checking fit. Not included in model output. 
+    translate([0, -20, 0])
+        *touch_pad_pin_cover();
+}
+
+module cover_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
     cover_besides_box(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
         cover(control_compartment_x_length, 
               control_compartment_y_length,
               control_compartment_wall_thickness);
     }
-    
-    translate([0, -20, 0])
-        *touch_pad_pin_cover();
+}
+
+module control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness, part) {
+    if (part == "bottom") {
+        buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
+    } else if (part == "cover") {
+        cover_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
+    } else {
+        buttom_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
+        cover_group(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
+    }
 }
 
 module cover_besides_box(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {   
@@ -177,4 +191,4 @@ module cover_besides_box(control_compartment_x_length, control_compartment_y_len
         children();
 }
 
-*control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness);
+control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness, "bottom");
