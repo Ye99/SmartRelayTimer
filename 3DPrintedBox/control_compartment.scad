@@ -5,6 +5,7 @@ include <screw_matrics.scad>
 include <BOSL/constants.scad>
 use <BOSL/metric_screws.scad>
 use <BOSL/transforms.scad>
+use <triangles.scad>
 use <HW-389_box.scad>
 
 control_compartment_wall_thickness=2;
@@ -14,7 +15,7 @@ control_compartment_x_length=106;
 control_compartment_y_length=106;
 
 // This includes buttom thickness (==control_compartment_wall_thickness)
-control_compartment_z_length=30;
+control_compartment_z_length=50;
 
 echo("1602LCD_x_length is", 1602LCD_x_length);
 
@@ -46,32 +47,36 @@ module touch_pad_support() {
 cover_hole_to_edge_offset_x=control_compartment_wall_thickness*2;
 cover_hole_to_edge_offset_y=cover_hole_to_edge_offset_x;
 
-module arrange_screws_x_y_position(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness) {
+/* move children to four corners, also lift it up by control_compartment_wall_thickness */
+module arrange_to_four_corners(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness) {
     double_wall_thickness=control_compartment_wall_thickness*2;
     
     translate([cover_hole_to_edge_offset_x, 
                 cover_hole_to_edge_offset_y, 
                 control_compartment_wall_thickness])
-        children();
+            children();
     
     translate([cover_hole_to_edge_offset_x, 
                 control_compartment_y_length+double_wall_thickness-cover_hole_to_edge_offset_y, 
                 control_compartment_wall_thickness])
-        children();
+            zrot(-90)
+                children();
     
     translate([control_compartment_y_length+double_wall_thickness-cover_hole_to_edge_offset_x, 
                 control_compartment_y_length+double_wall_thickness-cover_hole_to_edge_offset_y, 
                 control_compartment_wall_thickness])
-        children();
+        zrot(-180)
+            children();
 
     translate([control_compartment_y_length+double_wall_thickness-cover_hole_to_edge_offset_x, 
                 cover_hole_to_edge_offset_y, 
                 control_compartment_wall_thickness])
-        children();
+        zrot(-270)
+            children();
 }
 
 module cover_screws() {
-    arrange_screws_x_y_position(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness)
+    arrange_to_four_corners(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness)
         #screw(screwsize=number4_screw_hole_diameter, 
                screwlen=number4_screw_stem_length,
                headsize=number4_screw_head_diameter,
@@ -110,20 +115,38 @@ module cover(control_compartment_x_length, control_compartment_y_length, control
     }
 }
 
-/* First childeren is HW_389_base. Second childern is cover
-   Use screw*/
+wall_screw_tab_height=19;
 
+module wall_screw_tab() {
+    cube_side_length=number4_screw_head_diameter*1.4;
+    
+    difference() {
+        cube([cube_side_length, cube_side_length, wall_screw_tab_height], center=true);        
+        
+        rotate([-30, 0, -45])
+            back(number4_screw_head_diameter)
+            cube([cube_side_length*2, cube_side_length, wall_screw_tab_height*5], center=true);
+    }
+}
+
+
+/* The first childeren is HW_389_base. 
+   The second children is wall screw tab */
 module add_screw_tabs_to_box_bottom(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
     difference() {
         union() {
-            children();
+            children(0);
             
+            up(control_compartment_z_length-wall_screw_tab_height/2-control_compartment_wall_thickness)
+                arrange_to_four_corners(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness) 
+                    children(1);
         }
         
         // On top of the box
         up(control_compartment_z_length) {
-            cover_screws();
-            cover(control_compartment_x_length, 
+            cover_screws(); 
+            // This cover here to visualize fit. It's not included in final result. 
+            %cover(control_compartment_x_length, 
                     control_compartment_y_length,
                     control_compartment_wall_thickness);
         }
@@ -136,6 +159,7 @@ module control_compartment(control_compartment_x_length, control_compartment_y_l
                     control_compartment_y_length, 
                     control_compartment_z_length, 
                     control_compartment_wall_thickness);
+        wall_screw_tab();
     }
     
     cover_besides_box(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
