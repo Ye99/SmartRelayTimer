@@ -25,25 +25,7 @@ module aligned_1602LCD_bezel() {
             1602bezel();
 }
 
-touch_pad_x_offset_to_origin=8;
-/* Move touch pad to correct x,y position */
-module align_touch_pad() {
-    translate([touch_pad_x_offset_to_origin, 
-               (control_compartment_y_length-touch_pad_board_y_length)/2, 
-               0])
-        children();
-}
-
-touch_pad_support_thickness=touch_pad_base_screw_hole_z_depth+1;
-// The support is wider than the acutal board size, to make good connection with cover.
-touch_pad_support_two_sides_enlarge_size=control_compartment_wall_thickness*3;
-
-module touch_pad_support() {
-    translate([-touch_pad_support_two_sides_enlarge_size/2, -touch_pad_support_two_sides_enlarge_size/2, -touch_pad_support_thickness])
-        cube([touch_pad_board_x_length+touch_pad_support_two_sides_enlarge_size, 
-              touch_pad_board_y_length+touch_pad_support_two_sides_enlarge_size, touch_pad_support_thickness]);
-}
-
+touch_pad_x_offset_to_origin=7;
 cover_hole_to_edge_offset_x=control_compartment_wall_thickness*2;
 cover_hole_to_edge_offset_y=cover_hole_to_edge_offset_x;
 
@@ -83,6 +65,13 @@ module cover_screws() {
                headlen=3, countersunk=false, align="base");
 }
 
+module aligned_touch_pad_bezel(touch_pad_x_offset_to_origin, touch_pad_bezel_y_length, touch_pad_bezel_z_length, control_compartment_y_length) {
+    up(touch_pad_bezel_z_length)
+        right(touch_pad_x_offset_to_origin)
+            back((control_compartment_y_length-touch_pad_bezel_y_length)/2)
+                touch_pad_bezel();
+}
+
 module cover(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness) {
     double_wall_thickness=control_compartment_wall_thickness*2;
     difference() {
@@ -90,33 +79,27 @@ module cover(control_compartment_x_length, control_compartment_y_length, control
             difference() {
                 cube([control_compartment_x_length+double_wall_thickness, control_compartment_y_length+double_wall_thickness, control_compartment_wall_thickness]);
                 
-                // Cut space for the bezel. 
+                // Cut space for the bezels. 
                 hull()
                     aligned_1602LCD_bezel();
+                
+                hull()
+                    aligned_touch_pad_bezel(touch_pad_x_offset_to_origin, touch_pad_bezel_y_length, touch_pad_bezel_z_length, control_compartment_y_length);
             }
             
             // Add LCD bezel.
             aligned_1602LCD_bezel();
             
-            // Add touch pad support
-            align_touch_pad()
-                touch_pad_support();
+            // Add touch pad bezel.
+            aligned_touch_pad_bezel(touch_pad_x_offset_to_origin, touch_pad_bezel_y_length, touch_pad_bezel_z_length, control_compartment_y_length);
         }
-        
-        // Cut space for the touch pad.
-        // OpenSCAD shows mesh on cut surface, if the two surfaces are aligned.
-        // The mesh looks as if the cut doesn't exist in my case, though in slicer it's perfect. 
-        // Add a tiny offset to break the aligment, so the cut is easier to see in OpenSCAD. 
-        up(control_compartment_wall_thickness + 0.001)
-            align_touch_pad()
-                #touch_pad();
             
         cover_screws();
     }
     
     left(control_compartment_wall_thickness)
         zrot(90)
-            touch_pad_pin_cover();
+            *touch_pad_pin_cover(); // Not enough space to print. Temporarily disable. 
 }
 
 wall_screw_tab_height=19;
