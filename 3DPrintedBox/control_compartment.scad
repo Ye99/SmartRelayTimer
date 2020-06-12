@@ -130,14 +130,28 @@ module add_screw_tabs_to_box_top_corners(control_compartment_x_length, control_c
     }
 }
 
+module sensor_wire_hole(hole_x_offset, 
+    control_compartment_y_length, 
+    control_compartment_wall_thickness, 
+    sensor_wire_hole_diameter) {
+        translate([hole_x_offset, control_compartment_y_length, 24])
+                xrot(90)
+                    #cylinder(d=sensor_wire_hole_diameter, h=control_compartment_wall_thickness*10, center=true, $fn=50);
+    }
+
 module cut_sensor_wire_hole(control_compartment_x_length, 
     control_compartment_y_length, 
     control_compartment_z_length, 
     control_compartment_wall_thickness, 
     sensor_wire_hole_diameter) {
-    translate([control_compartment_x_length/5*3, control_compartment_y_length, 24])
-            xrot(90)
-                #cylinder(d=sensor_wire_hole_diameter, h=control_compartment_wall_thickness*10, center=true, $fn=50);
+        if (control_compartment_x_length<58) {
+            sensor_wire_hole(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
+        }
+        else {
+            sensor_wire_hole(58, control_compartment_y_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
+        }
+        
+         
 }
 
 module buttom_group(control_compartment_x_length, 
