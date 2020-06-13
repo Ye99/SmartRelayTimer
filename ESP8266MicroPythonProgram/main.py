@@ -28,9 +28,14 @@ def beep():
 
 
 key_value = 0
+last_key_value = key_value
 
-#is_key_value_changed=False
-#def check_is_key_value_changed() -> bool:
+def check_is_key_value_changed() -> bool:
+    global last_key_value
+    if key_value != last_key_value:
+        last_key_value=key_value
+        return True
+    return False
 
 
 # check all keys
@@ -52,8 +57,9 @@ _loop_sleep_ms = const(50)
 
 while True:
     try:
+        if check_is_key_value_changed():
+            lcd_display_line(1, str(key_value))
 
-        lcd_display_line(1, str(key_value))
         sleep_ms(_loop_sleep_ms)
     except OSError as ex:
         error_message = 'ERROR: {}'.format(ex)
