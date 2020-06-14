@@ -83,6 +83,9 @@ lcd_controller.update_state_message(State.DONE)
 
 call_back_message = ""
 
+metric_path_name = '/metrics.log'
+metrics = retrieve_metrics(metric_path_name)
+
 
 def relay_time_done(completed_seconds) -> None:
     global _current_state
@@ -92,6 +95,11 @@ def relay_time_done(completed_seconds) -> None:
     message = "Finished {}".format(str(convert_seconds_to_minutes_and_seconds(completed_seconds)))
     print("relay_time_done received: {}".format(message))
     call_back_message = message
+
+    metrics["number_of_times_used"] = 1 + metrics["number_of_times_used"]
+    metrics["this_lamp_total_time_in_seconds"] = completed_seconds + metrics["this_lamp_total_time_in_seconds"]
+    metrics["this_device_total_time_in_seconds"] = completed_seconds + metrics["this_device_total_time_in_seconds"]
+    save_metrics(metrics, metric_path_name)
 
 
 relay_controller = RelayController(relay_time_done)
