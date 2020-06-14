@@ -8,15 +8,17 @@ from state import State
 from relay_controller import RelayController
 from lcd_controller import LcdController
 
-
-# i2c = I2C(3) # stm32
+# Keypad and LCD use D1, D2
 i2c = I2C(scl=Pin(5), sda=Pin(4))  # esp8266.
+
+# Keypad IRQ useds D3 (pin 0).
 irq = Pin(0, Pin.IN, Pin.PULL_UP)
-# i2c = I2C(scl=Pin(22), sda=Pin(21)) # esp32
-# keypad address is 0x5A (match mpr121 library default)
-mpr = mpr121.MPR121(i2c)
 
 # Buzzer at D5 (GPIO14)
+# Relay at D6 (GPIO12). See relay_controller.py for high/low trigger logic.
+
+# keypad I2C address is 0x5A (match mpr121 library default)
+mpr = mpr121.MPR121(i2c)
 
 _start = "Start"
 _pause = "Pause"
@@ -68,28 +70,37 @@ def check(_):
 
 irq.irq(check, Pin.IRQ_FALLING)
 
-
 # This only impact LCD update time. Keybad is monitored by IRQ and should be realtime.
 _loop_sleep_ms = const(50)
 
-_current_state = State.DISPLAYING_HISTORY_DATA
+_current_state = State.DONE
 
 timer_initial_value_in_minutes = 0
 
 lcd_controller = LcdController()
-lcd_controller.update_state_message(State.DISPLAYING_HISTORY_DATA)
+lcd_controller.update_state_message(State.DONE)
+
+
+def relay_time_done(message) -> None:
+    global _current_state
+    _current_state = State.DONE
+    lcd_controller.update_state_message(_current_state)
+    lcd_controller.update_message(message)
+
+relay_controller = RelayController(relay_time_done)
+
 
 while True:
     try:
         if check_is_key_value_changed():
             if isinstance(key_value, int):
-                if State.DISPLAYING_HISTORY_DATA == _current_state:
+                if State.DONE == _current_state or State.INPUT_TIME == _current_state:
                     timer_initial_value_in_minutes = key_value
+                    print("timer_initial_value_in_minutes set to {}".format(timer_initial_value_in_minutes))
                     _current_state = State.INPUT_TIME
             elif isinstance(key_value, str):
                 if State.INPUT_TIME == _current_state and _start == key_value:
-                    relay_controller = RelayController(timer_initial_value_in_minutes)
-                    relay_controller.start()
+                    relay_controller.start(timer_initial_value_in_minutes)
                     _current_state = State.RUNNING
                 elif State.RUNNING == _current_state:
                     if _pause == key_value:
@@ -97,14 +108,24 @@ while True:
                         _current_state = State.PAUSED
                     elif _cancel == key_value:
                         relay_controller.stop()
-                        _current_state = State.DISPLAYING_HISTORY_DATA
+                        _current_state = State.DONE
                 elif State.PAUSED == _current_state:
                     if _resume == key_value:
                         relay_controller.resume()
                         _current_state = State.RUNNING
+                    elif _cancel == key_value:
+                        relay_controller.stop()
+                        _current_state = State.DONE
+
             lcd_controller.update_state_message(_current_state)
 
-        lcd_controller.update_running_timer_message("2:38")
+        if State.RUNNING == _current_state:
+            remain_time = relay_controller.get_remain_timer()
+            # print("lcd_controller.update_running_timer_message {}".format(remain_time))
+            lcd_controller.update_message(remain_time)
+        elif State.INPUT_TIME == _current_state:
+            # print("Current input is {} minutes".format(timer_initial_value_in_minutes))
+            lcd_controller.update_message("{} minutes".format(timer_initial_value_in_minutes))
 
         sleep_ms(_loop_sleep_ms)
     except OSError as ex:
@@ -112,3 +133,5 @@ while True:
         # If function, invoked from here, raises exception, the loop can terminate.
         # publish_message(error_message)
         print(error_message)
+
+relay_controller.stop()

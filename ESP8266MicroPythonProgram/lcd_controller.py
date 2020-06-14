@@ -10,15 +10,14 @@ class LcdController:
     def update_state_message(self, state):
         assert self.last_state != state
 
-        if State.DISPLAYING_HISTORY_DATA == state:
-            lcd_display_line(0, "5 mins 6/6 11:37")
+        if State.DONE == state:
+            lcd_display_line(0, "Done")
         if State.INPUT_TIME == state:
-            lcd_display_line(0, "S to Start")
+            lcd_display_line(0, "Press S to start")
         elif State.RUNNING == state:
             lcd_display_line(0, "Disinfecting...")
         elif State.PAUSED == state:
-            lcd_display_line(0, "R to resume")
+            lcd_display_line(0, "(R)esume(C)ancel")
 
-    def update_running_timer_message(self, timer):
-        # assert State.RUNNING == self.last_state
-        lcd_display_line(1, timer)
+    def update_message(self, message):
+        lcd_display_line(1, message)
