@@ -50,8 +50,8 @@ def lcd_clear_one_line(y_index):
     assert 0 <= y_index < _line_number
     lcd.move_to(0, y_index)
     # Erase one line by filling it with spaces
-    lcd.putstr(' ' * (_column_number - 1))
-    # _column_number
+    # Reserve the last character for heart beat?
+    lcd.putstr(' ' * _column_number)
 
 
 # Update line1 and leave other lines intact
