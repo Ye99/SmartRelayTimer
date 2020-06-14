@@ -65,7 +65,7 @@ class RelayController:
     def _timer_callback(self):
         # print("timer fired")
         if self.remaining_timer_value_in_seconds > 0:
-            self.remaining_timer_value_in_seconds = self.remaining_timer_value_in_seconds - 1
+            self.remaining_timer_value_in_seconds = self.remaining_timer_value_in_seconds - 20
         else:
             self.stop()
             message = "Finished {} mins".format(self.initial_timer_value_in_minutes)

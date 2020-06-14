@@ -80,15 +80,18 @@ timer_initial_value_in_minutes = 0
 lcd_controller = LcdController()
 lcd_controller.update_state_message(State.DONE)
 
+call_back_message = ""
+
 
 def relay_time_done(message) -> None:
     global _current_state
     _current_state = State.DONE
-    lcd_controller.update_state_message(_current_state)
-    lcd_controller.update_message(message)
+    print("relay_time_done received: {}".format(message))
+    global call_back_message
+    call_back_message = message
+
 
 relay_controller = RelayController(relay_time_done)
-
 
 while True:
     try:
@@ -126,6 +129,11 @@ while True:
         elif State.INPUT_TIME == _current_state:
             # print("Current input is {} minutes".format(timer_initial_value_in_minutes))
             lcd_controller.update_message("{} minutes".format(timer_initial_value_in_minutes))
+
+        if len(call_back_message) > 0:
+            lcd_controller.update_state_message(_current_state)
+            lcd_controller.update_message(call_back_message)
+            call_back_message = ""
 
         sleep_ms(_loop_sleep_ms)
     except OSError as ex:

@@ -15,7 +15,7 @@ class LcdController:
         if State.INPUT_TIME == state:
             lcd_display_line(0, "Press S to start")
         elif State.RUNNING == state:
-            lcd_display_line(0, "Disinfecting...")
+            lcd_display_line(0, "Working...")
         elif State.PAUSED == state:
             lcd_display_line(0, "(R)esume(C)ancel")
 
