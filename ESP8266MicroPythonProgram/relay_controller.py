@@ -54,10 +54,13 @@ class RelayController:
         self._schedule_timer()
         turn_on_relay()
 
-    def stop(self):
-        print("RelayController.stop")
+    def cancel(self):
+        print("RelayController.cancel")
         self.timer.deinit()
         turn_off_relay()
+        done_in_seconds = self.initial_timer_value_in_minutes * 60 - self.remaining_timer_value_in_seconds
+        message = "Finished {}".format(str(convert_seconds_to_minutes_seconds(done_in_seconds)))
+        self.call_back_when_done(message)
 
     def _schedule_timer(self):
         self.timer.init(period=_one_second, mode=Timer.PERIODIC, callback=lambda t: self._timer_callback())
@@ -65,9 +68,9 @@ class RelayController:
     def _timer_callback(self):
         # print("timer fired")
         if self.remaining_timer_value_in_seconds > 0:
-            self.remaining_timer_value_in_seconds = self.remaining_timer_value_in_seconds - 20
+            self.remaining_timer_value_in_seconds = self.remaining_timer_value_in_seconds - 1
         else:
-            self.stop()
+            self.cancel()
             message = "Finished {} mins".format(self.initial_timer_value_in_minutes)
             self.call_back_when_done(message)
 
