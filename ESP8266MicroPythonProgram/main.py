@@ -7,11 +7,12 @@ from micropython import const
 from state import State
 from relay_controller import RelayController
 from lcd_controller import LcdController
+from convert_seconds_to_minutes_and_seconds import convert_seconds_to_minutes_and_seconds
 
 # Keypad and LCD use D1, D2
 i2c = I2C(scl=Pin(5), sda=Pin(4))  # esp8266.
 
-# Keypad IRQ useds D3 (pin 0).
+# Keypad IRQ uses D3 (pin 0).
 irq = Pin(0, Pin.IN, Pin.PULL_UP)
 
 # Buzzer at D5 (GPIO14)
@@ -83,11 +84,13 @@ lcd_controller.update_state_message(State.DONE)
 call_back_message = ""
 
 
-def relay_time_done(message) -> None:
+def relay_time_done(completed_seconds) -> None:
     global _current_state
     _current_state = State.DONE
-    print("relay_time_done received: {}".format(message))
+
     global call_back_message
+    message = "Finished {}".format(str(convert_seconds_to_minutes_and_seconds(completed_seconds)))
+    print("relay_time_done received: {}".format(message))
     call_back_message = message
 
 

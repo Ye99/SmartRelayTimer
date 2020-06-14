@@ -1,4 +1,3 @@
-
 class State():
     INVALID = 0
     DONE = 1

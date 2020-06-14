@@ -1,15 +1,6 @@
 from machine import Timer, Pin
 from micropython import const
-
-
-# Not enough memory to load this 74K file:
-# import datetime
-# Use simple math to convert seconds to minutes.
-def convert_seconds_to_minutes_seconds(seconds) -> str:
-    minutes_value = int(seconds / 60)
-    seconds_value = seconds % 60
-    return "{minute}m {second}s ".format(minute=minutes_value, second=seconds_value)
-
+from convert_seconds_to_minutes_and_seconds import convert_seconds_to_minutes_and_seconds
 
 _one_second = const(1000)
 
@@ -58,9 +49,8 @@ class RelayController:
         print("RelayController.cancel")
         self.timer.deinit()
         turn_off_relay()
-        done_in_seconds = self.initial_timer_value_in_minutes * 60 - self.remaining_timer_value_in_seconds
-        message = "Finished {}".format(str(convert_seconds_to_minutes_seconds(done_in_seconds)))
-        self.call_back_when_done(message)
+        completed_seconds = self.initial_timer_value_in_minutes * 60 - self.remaining_timer_value_in_seconds
+        self.call_back_when_done(completed_seconds)
 
     def _schedule_timer(self):
         self.timer.init(period=_one_second, mode=Timer.PERIODIC, callback=lambda t: self._timer_callback())
@@ -72,6 +62,5 @@ class RelayController:
         else:
             self.cancel()
 
-
     def get_remain_timer(self) -> str:
-        return str(convert_seconds_to_minutes_seconds(self.remaining_timer_value_in_seconds))
+        return str(convert_seconds_to_minutes_and_seconds(self.remaining_timer_value_in_seconds))
