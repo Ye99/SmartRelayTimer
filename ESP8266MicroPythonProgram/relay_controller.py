@@ -71,8 +71,7 @@ class RelayController:
             self.remaining_timer_value_in_seconds = self.remaining_timer_value_in_seconds - 1
         else:
             self.cancel()
-            message = "Finished {} mins".format(self.initial_timer_value_in_minutes)
-            self.call_back_when_done(message)
+
 
     def get_remain_timer(self) -> str:
         return str(convert_seconds_to_minutes_seconds(self.remaining_timer_value_in_seconds))
