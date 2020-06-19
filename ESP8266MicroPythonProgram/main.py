@@ -103,6 +103,8 @@ def relay_time_done(completed_seconds, set_minutes) -> None:
 
 
 def process_call_back_message() -> None:
+    global last_completed_seconds
+    global last_set_minutes
     if _invalid_value != last_completed_seconds and _invalid_value != last_set_minutes:
         message = "Done {finished_time}/{origian_minutes} mins".format(
             finished_time=str(convert_seconds_to_minutes_and_seconds(last_completed_seconds),
@@ -111,9 +113,7 @@ def process_call_back_message() -> None:
         global call_back_message
         call_back_message = message
         # Set to invalid value so it's only processed once.
-        global last_completed_seconds
         last_completed_seconds = _invalid_value
-        global last_set_minutes
         last_set_minutes = _invalid_value
 
         metrics["number_of_times_used"] = 1 + metrics["number_of_times_used"]
