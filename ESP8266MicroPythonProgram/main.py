@@ -84,8 +84,6 @@ timer_initial_value_in_minutes = 0
 lcd_controller = LcdController()
 lcd_controller.update_state_message(State.DONE)
 
-call_back_message = ""
-
 metric_path_name = '/metrics.log'
 metrics = retrieve_metrics(metric_path_name)
 
@@ -105,16 +103,16 @@ def relay_time_done(completed_seconds, set_minutes) -> None:
     last_set_minutes = set_minutes
 
 
-def process_call_back_message() -> None:
+def process_call_back_message() -> str:
     global last_completed_seconds
     global last_set_minutes
     if _invalid_value != last_completed_seconds and _invalid_value != last_set_minutes:
-        message = "Done {completed_time}/{original_minutes} mins".format(
+        print("last_set_minutes is {}".format(last_set_minutes))
+        print("last_completed_seconds is {}".format(last_completed_seconds))
+        message = "Done {completed_time}/{original_minutes}m".format(
             completed_time=str(convert_seconds_to_minutes_and_seconds(last_completed_seconds)),
             original_minutes=last_set_minutes)
 
-        global call_back_message
-        call_back_message = message
         # Set to invalid value so it's only processed once.
         last_completed_seconds = _invalid_value
         last_set_minutes = _invalid_value
@@ -124,6 +122,10 @@ def process_call_back_message() -> None:
         metrics["this_device_total_time_in_seconds"] = last_completed_seconds + metrics[
             "this_device_total_time_in_seconds"]
         save_metrics(metrics, metric_path_name)
+
+        return message
+    else:
+        return ""
 
 
 relay_controller = RelayController(relay_time_done)
@@ -168,12 +170,10 @@ while True:
             # print("Current input is {} minutes".format(timer_initial_value_in_minutes))
             lcd_controller.update_message("{} minutes".format(timer_initial_value_in_minutes))
 
-        process_call_back_message()
-
+        call_back_message = process_call_back_message()
         if len(call_back_message) > 0:
             lcd_controller.update_state_message(_current_state)
             lcd_controller.update_message(call_back_message)
-            call_back_message = ""
 
         sleep_ms(_loop_sleep_ms)
     except OSError as ex:
