@@ -101,6 +101,9 @@ def relay_time_done(completed_seconds, set_minutes) -> None:
     global last_completed_seconds
     last_completed_seconds = completed_seconds
 
+    global last_set_minutes
+    last_set_minutes = set_minutes
+
 
 def process_call_back_message() -> None:
     global last_completed_seconds
