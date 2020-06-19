@@ -144,6 +144,8 @@ while True:
                         relay_controller.start(timer_initial_value_in_minutes)
                         _current_state = State.RUNNING
                     elif _cancel == key_value:
+                        # Clear the canceled input from screen.
+                        lcd_controller.update_message("")
                         _current_state = State.DONE
                 elif State.RUNNING == _current_state:
                     if _pause == key_value:
