@@ -120,16 +120,16 @@ while True:
                     if _pause == key_value:
                         relay_controller.pause()
                         _current_state = State.PAUSED
-                    elif _cancel == key_value:
+                    """elif _cancel == key_value:
                         relay_controller.cancel()
-                        _current_state = State.DONE
+                        _current_state = State.DONE"""
                 elif State.PAUSED == _current_state:
                     if _resume == key_value:
                         relay_controller.resume()
                         _current_state = State.RUNNING
-                    elif _cancel == key_value:
+                    """elif _cancel == key_value:
                         relay_controller.cancel()
-                        _current_state = State.DONE
+                        _current_state = State.DONE"""
 
             lcd_controller.update_state_message(_current_state)
 
