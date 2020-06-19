@@ -54,9 +54,10 @@ class RelayController:
         # print("RelayController.cancel")
         self.timer.deinit()
         turn_off_relay()
-        self.reset()
         completed_seconds = self.initial_timer_value_in_minutes * 60 - self.remaining_timer_value_in_seconds
         self.call_back_when_done(completed_seconds, self.initial_timer_value_in_minutes)
+        # the callback needs this object state. Reset must be after the callback.
+        self.reset()
 
     def _schedule_timer(self):
         self.timer.init(period=_one_second, mode=Timer.PERIODIC, callback=lambda t: self._timer_callback())
