@@ -109,9 +109,9 @@ def process_call_back_message() -> None:
     global last_completed_seconds
     global last_set_minutes
     if _invalid_value != last_completed_seconds and _invalid_value != last_set_minutes:
-        message = "Done {finished_time}/{origian_minutes} mins".format(
-            finished_time=str(convert_seconds_to_minutes_and_seconds(last_completed_seconds),
-                              origian_minutes=last_set_minutes))
+        message = "Done {completed_time}/{original_minutes} mins".format(
+            completed_time=str(convert_seconds_to_minutes_and_seconds(last_completed_seconds)),
+            original_minutes=last_set_minutes)
 
         global call_back_message
         call_back_message = message
