@@ -109,7 +109,7 @@ def process_call_back_message() -> str:
     if _invalid_value != last_completed_seconds and _invalid_value != last_set_minutes:
         print("last_set_minutes is {}".format(last_set_minutes))
         print("last_completed_seconds is {}".format(last_completed_seconds))
-        message = "Done {completed_time}/{original_minutes}m".format(
+        message = "Done {completed_time} of {original_minutes}m".format(
             completed_time=str(convert_seconds_to_minutes_and_seconds(last_completed_seconds)),
             original_minutes=last_set_minutes)
 
