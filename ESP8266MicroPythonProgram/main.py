@@ -1,13 +1,14 @@
 # Must plug in DC power to Lolin V3 board, to power its 3.3V and 5V rail to external devices like LCD/keypad.
-import mpr121
-from machine import Pin, I2C, PWM
 from time import sleep_ms, sleep
-from log import retrieve_metrics, save_metrics
-from micropython import const
-from state import State
-from relay_controller import RelayController
-from lcd_controller import LcdController
+
+import mpr121
 from convert_seconds_to_minutes_and_seconds import convert_seconds_to_minutes_and_seconds
+from lcd_controller import LcdController
+from log import retrieve_metrics, save_metrics
+from machine import Pin, I2C, PWM
+from micropython import const
+from relay_controller import RelayController
+from state import State
 
 # Keypad and LCD use D1, D2
 i2c = I2C(scl=Pin(5), sda=Pin(4))  # esp8266.
@@ -76,6 +77,8 @@ _loop_sleep_ms = const(50)
 
 _current_state = State.DONE
 
+_invalid_value = const(-1)
+
 timer_initial_value_in_minutes = 0
 
 lcd_controller = LcdController()
@@ -86,20 +89,38 @@ call_back_message = ""
 metric_path_name = '/metrics.log'
 metrics = retrieve_metrics(metric_path_name)
 
+last_completed_seconds = _invalid_value
+# If the timer is canceled, this tells what's the original set value. So we show "Finished x min y s, of z mins".
+last_set_minutes = _invalid_value
 
-def relay_time_done(completed_seconds) -> None:
+
+def relay_time_done(completed_seconds, set_minutes) -> None:
     global _current_state
     _current_state = State.DONE
 
-    global call_back_message
-    message = "Finished {}".format(str(convert_seconds_to_minutes_and_seconds(completed_seconds)))
-    print("relay_time_done received: {}".format(message))
-    call_back_message = message
+    global last_completed_seconds
+    last_completed_seconds = completed_seconds
 
-    metrics["number_of_times_used"] = 1 + metrics["number_of_times_used"]
-    metrics["this_lamp_total_time_in_seconds"] = completed_seconds + metrics["this_lamp_total_time_in_seconds"]
-    metrics["this_device_total_time_in_seconds"] = completed_seconds + metrics["this_device_total_time_in_seconds"]
-    save_metrics(metrics, metric_path_name)
+
+def process_call_back_message() -> None:
+    if _invalid_value != last_completed_seconds and _invalid_value != last_set_minutes:
+        message = "Done {finished_time}/{origian_minutes} mins".format(
+            finished_time=str(convert_seconds_to_minutes_and_seconds(last_completed_seconds),
+                              origian_minutes=last_set_minutes))
+
+        global call_back_message
+        call_back_message = message
+        # Set to invalid value so it's only processed once.
+        global last_completed_seconds
+        last_completed_seconds = _invalid_value
+        global last_set_minutes
+        last_set_minutes = _invalid_value
+
+        metrics["number_of_times_used"] = 1 + metrics["number_of_times_used"]
+        metrics["this_lamp_total_time_in_seconds"] = last_completed_seconds + metrics["this_lamp_total_time_in_seconds"]
+        metrics["this_device_total_time_in_seconds"] = last_completed_seconds + metrics[
+            "this_device_total_time_in_seconds"]
+        save_metrics(metrics, metric_path_name)
 
 
 relay_controller = RelayController(relay_time_done)
@@ -113,23 +134,26 @@ while True:
                     print("timer_initial_value_in_minutes set to {}".format(timer_initial_value_in_minutes))
                     _current_state = State.INPUT_TIME
             elif isinstance(key_value, str):
-                if State.INPUT_TIME == _current_state and _start == key_value:
-                    relay_controller.start(timer_initial_value_in_minutes)
-                    _current_state = State.RUNNING
+                if State.INPUT_TIME == _current_state:
+                    if _start == key_value:
+                        relay_controller.start(timer_initial_value_in_minutes)
+                        _current_state = State.RUNNING
+                    elif _cancel == key_value:
+                        _current_state = State.DONE
                 elif State.RUNNING == _current_state:
                     if _pause == key_value:
                         relay_controller.pause()
                         _current_state = State.PAUSED
-                    """elif _cancel == key_value:
+                    elif _cancel == key_value:
                         relay_controller.cancel()
-                        _current_state = State.DONE"""
+                        _current_state = State.DONE
                 elif State.PAUSED == _current_state:
                     if _resume == key_value:
                         relay_controller.resume()
                         _current_state = State.RUNNING
-                    """elif _cancel == key_value:
+                    elif _cancel == key_value:
                         relay_controller.cancel()
-                        _current_state = State.DONE"""
+                        _current_state = State.DONE
 
             lcd_controller.update_state_message(_current_state)
 
@@ -140,6 +164,8 @@ while True:
         elif State.INPUT_TIME == _current_state:
             # print("Current input is {} minutes".format(timer_initial_value_in_minutes))
             lcd_controller.update_message("{} minutes".format(timer_initial_value_in_minutes))
+
+        process_call_back_message()
 
         if len(call_back_message) > 0:
             lcd_controller.update_state_message(_current_state)
