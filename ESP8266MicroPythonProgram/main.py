@@ -4,7 +4,7 @@ import gc
 import mpr121
 from convert_seconds_to_minutes_and_seconds import convert_seconds_to_minutes_and_seconds
 from lcd_controller import LcdController
-from log import retrieve_metrics, save_metrics
+# from log import retrieve_metrics, save_metrics
 from machine import Pin, I2C, PWM
 from micropython import const
 from relay_controller import RelayController
@@ -84,14 +84,16 @@ timer_initial_value_in_minutes = 0
 lcd_controller = LcdController()
 lcd_controller.update_state_message(State.DONE)
 
-metric_path_name = '/metrics.log'
+# metric_path_name = '/metrics.log'
 
+"""
 try:
     metrics = retrieve_metrics(metric_path_name)
 except ValueError:
     # if the file is corrupted, recreate it.
     # The metrics will be saved when timer is up.
     metrics = {"number_of_times_used": 0, "this_lamp_total_time_in_seconds": 0, "this_device_total_time_in_seconds": 0}
+"""
 
 last_completed_seconds = _invalid_value
 # If the timer is canceled, this tells what's the original set value. So we show "Finished x min y s, of z mins".
@@ -123,11 +125,13 @@ def process_call_back_message() -> str:
         last_completed_seconds = _invalid_value
         last_set_minutes = _invalid_value
 
+        """
         metrics["number_of_times_used"] = 1 + metrics["number_of_times_used"]
         metrics["this_lamp_total_time_in_seconds"] = last_completed_seconds + metrics["this_lamp_total_time_in_seconds"]
         metrics["this_device_total_time_in_seconds"] = last_completed_seconds + \
                                                        metrics["this_device_total_time_in_seconds"]
         save_metrics(metrics, metric_path_name)
+        """
 
         return message
     else:
