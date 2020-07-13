@@ -1,6 +1,6 @@
 # Must plug in DC power to Lolin V3 board, to power its 3.3V and 5V rail to external devices like LCD/keypad.
 from time import sleep_ms, sleep
-
+import gc
 import mpr121
 from convert_seconds_to_minutes_and_seconds import convert_seconds_to_minutes_and_seconds
 from lcd_controller import LcdController
@@ -184,9 +184,11 @@ while True:
             lcd_controller.update_message(call_back_message)
 
         sleep_ms(_loop_sleep_ms)
+        # periodically gc is good https://docs.micropython.org/en/latest/reference/speed_python.html
+        gc.collect()
     except OSError as ex:
         error_message = 'ERROR: {}'.format(ex)
-        # If function, invoked from here, raises exception, the loop can terminate.
+        # If function, invoked from here, raises exception, the loop is terminated.
         # publish_message(error_message)
         print(error_message)
 
