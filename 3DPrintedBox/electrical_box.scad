@@ -1,6 +1,6 @@
 /* By: Ye Zhang (mr.yezhang@gmail.com)
    Date: May 22, 2020
-    Raspberry Pi breakout holder and electrical box. 
+    Electrical box module. 
 */
 
 include <size_constants.scad>
