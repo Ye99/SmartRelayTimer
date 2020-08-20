@@ -10,13 +10,14 @@ from micropython import const
 from relay_controller import RelayController
 from state import State
 
-# Keypad and LCD use D1, D2
+# Keypad and LCD use D1 (SCL), D2 (SDA)
 i2c = I2C(scl=Pin(5), sda=Pin(4))  # esp8266.
 
 # Keypad IRQ uses D3 (pin 0).
+# Keypad VCC 3.3V!
 irq = Pin(0, Pin.IN, Pin.PULL_UP)
 
-# Buzzer at D5 (GPIO14)
+# Passive buzzer at D5 (GPIO14)
 # Relay at D6 (GPIO12). See relay_controller.py for high/low trigger logic.
 
 # keypad I2C address is 0x5A (match mpr121 library default)
@@ -29,13 +30,13 @@ _cancel = "Cancel"
 
 # key is scan code
 key_map = {1: 1,
-           2: 5,
-           4: 10,
-           8: 15,
-           16: 20,
-           32: 30,
-           64: 45,
-           128: 60,
+           2: 2,
+           4: 3,
+           8: 5,
+           16: 8,
+           32: 10,
+           64: 15,
+           128: 20,
            256: _start,
            512: _pause,
            1024: _resume,
