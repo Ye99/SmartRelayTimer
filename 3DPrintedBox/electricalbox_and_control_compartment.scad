@@ -11,8 +11,10 @@ use <BOSL/transforms.scad>
 
 wall_thickness=wall_double_thickness/2;
 
+is_blank_cover=true;
+
 // These x/y length is inner size, not including wall thickness
-control_compartment_x_length=106; 
+control_compartment_x_length=is_blank_cover ? 61 : 106; 
 control_compartment_y_length=106;
 
 // This includes buttom thickness (==control_compartment_wall_thickness)
@@ -20,6 +22,7 @@ control_compartment_z_length=height+wall_thickness;
 
 // Hole for three wires relay control.
 relay_control_wires_hole_diameter=8;
+
 
 module cut_signal_wire_hole(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness) {
         // control input wires hole on the other side wall
@@ -29,12 +32,14 @@ module cut_signal_wire_hole(control_compartment_x_length, control_compartment_y_
                     #cylinder(d=relay_control_wires_hole_diameter, h=wall_thickness*5, center=true, $fn=50);
 }
 
+
+
 difference() {
     union() {
         electricalbox("bottom"); // "cover", "bottom", "all"
         left(control_compartment_x_length+wall_thickness*2+width/2+wall_thickness)
             fwd(length/2+wall_thickness)
-                control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness, "bottom", 9);
+                control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness, "bottom", 8, is_blank_cover);
     }
 
     cut_signal_wire_hole(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness);
