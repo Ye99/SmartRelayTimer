@@ -50,7 +50,7 @@ module arrange_to_four_corners(control_compartment_x_length, control_compartment
 
 module cover_screws(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness, screwsize) {
     arrange_to_four_corners(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness)
-        #screw(screwsize, 
+        screw(screwsize, 
                screwlen=number4_screw_stem_length,
                headsize=number4_screw_head_diameter,
                headlen=3, countersunk=false, align="base");
@@ -123,7 +123,7 @@ module add_screw_tabs_to_box_top_corners(control_compartment_x_length, control_c
                     children(1);
         }
         
-        // On top of the box
+        // On top of the box. Cut screw holes that matching those on cover. 
         up(control_compartment_z_length) {
             cover_screws(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness, number4_screw_hole_tap_diameter); 
         }
