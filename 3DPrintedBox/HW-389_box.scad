@@ -44,8 +44,8 @@ dc_plug_z_offset=0+x_side_wall_holes_origin_z_offset;
 // Because the board isn't close enough to wall, and thus usb plug contact doesn't fully insert.
 // Hole is 1mm larger than the plug on all four sides.
 usb_plug_x_length=12; // Plug shell 10; contact 7.5.
-usb_plug_x_offset=21.35;
-usb_plug_z_length=8; // Plug shell 6; contact 4.
+usb_plug_x_offset=21.85;
+usb_plug_z_length=7; // Plug shell 6; contact 4.
 usb_plug_z_offset=10+x_side_wall_holes_origin_z_offset;
 
 echo("side_wall_z_length=base_z_length+x_side_wall_holes_origin_z_offset. Base_z_height, 17mm, is the minimum height covering HW-389 and ESP8266 V3 board.");
