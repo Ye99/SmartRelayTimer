@@ -1,8 +1,17 @@
+from convert_seconds_to_minutes_and_seconds import convert_seconds_to_minutes_and_seconds
 from machine import Timer, Pin
 from micropython import const
-from convert_seconds_to_minutes_and_seconds import convert_seconds_to_minutes_and_seconds
 
 _one_second = const(1000)
+
+relay_high_trigger = True
+
+if relay_high_trigger:
+    _relay_on_value = const(1)
+    _relay_off_value = const(0)
+else:
+    _relay_on_value = const(0)
+    _relay_off_value = const(1)
 
 # Relay at D6 (GPIO12).
 # D6 is high at boot.
@@ -13,11 +22,11 @@ relay = Pin(12, Pin.OUT)
 
 
 def turn_on_relay() -> None:
-    relay.value(1)
+    relay.value(_relay_on_value)
 
 
 def turn_off_relay() -> None:
-    relay.value(0)
+    relay.value(_relay_off_value)
 
 
 turn_off_relay()
