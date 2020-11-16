@@ -20,7 +20,8 @@ i2c = I2C(scl=Pin(5), sda=Pin(4))  # esp8266.
 irq = Pin(0, Pin.IN, Pin.PULL_UP)
 
 # Passive buzzer at D5 (GPIO14)
-# Relay at D6 (GPIO12). See relay_controller.py for high/low trigger logic.
+# Relay at D6 (GPIO12). New build should use high trigger logic because it's more reliable.
+# Front door build is the only low trigger config.
 
 # keypad I2C address is 0x5A (match mpr121 library default)
 mpr = mpr121.MPR121(i2c)
