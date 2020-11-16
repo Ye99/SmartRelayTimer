@@ -1,4 +1,5 @@
 # Must plug in DC power to Lolin V3 board, to power its 3.3V and 5V rail to external devices like LCD/keypad.
+# Dependency: This file reads config.json at same folder.
 from time import sleep_ms, sleep
 import gc
 import mpr121
@@ -9,6 +10,7 @@ from machine import Pin, I2C, PWM
 from micropython import const
 from relay_controller import RelayController
 from state import State
+import ujson
 
 # Keypad and LCD use D1 (SCL), D2 (SDA)
 i2c = I2C(scl=Pin(5), sda=Pin(4))  # esp8266.
@@ -139,7 +141,11 @@ def process_call_back_message() -> str:
         return ""
 
 
-relay_controller = RelayController(relay_time_done)
+with open('config.json') as f:
+    config = ujson.load(f)
+
+relay_high_trigger = config['relay_high_trigger']
+relay_controller = RelayController(relay_time_done, relay_high_trigger)
 
 while True:
     try:

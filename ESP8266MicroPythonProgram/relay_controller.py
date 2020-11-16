@@ -4,15 +4,6 @@ from micropython import const
 
 _one_second = const(1000)
 
-relay_high_trigger = True
-
-if relay_high_trigger:
-    _relay_on_value = const(1)
-    _relay_off_value = const(0)
-else:
-    _relay_on_value = const(0)
-    _relay_off_value = const(1)
-
 # Relay at D6 (GPIO12).
 # D6 is high at boot.
 # Connect the relay to high trigger.
@@ -21,23 +12,26 @@ else:
 relay = Pin(12, Pin.OUT)
 
 
-def turn_on_relay() -> None:
-    relay.value(_relay_on_value)
-
-
-def turn_off_relay() -> None:
-    relay.value(_relay_off_value)
-
-
-turn_off_relay()
-
-
 class RelayController:
-    def __init__(self, call_back_when_done):
+    def __init__(self, call_back_when_done, relay_high_trigger):
         self.initial_timer_value_in_minutes = 0
         self.remaining_timer_value_in_seconds = 0
         self.call_back_when_done = call_back_when_done
+        self.relay_high_trigger = relay_high_trigger
+        if self.relay_high_trigger:
+            self._relay_on_value = const(1)
+            self._relay_off_value = const(0)
+        else:
+            self._relay_on_value = const(0)
+            self._relay_off_value = const(1)
+        self.turn_off_relay()
         self.timer = Timer(-1)
+
+    def turn_on_relay(self) -> None:
+        relay.value(self._relay_on_value)
+
+    def turn_off_relay(self) -> None:
+        relay.value(self._relay_off_value)
 
     def reset(self):
         self.initial_timer_value_in_minutes = 0
@@ -48,23 +42,23 @@ class RelayController:
         self.initial_timer_value_in_minutes = timer_initial_value_in_minutes
         self.remaining_timer_value_in_seconds = self.initial_timer_value_in_minutes * 60
         self._schedule_timer()
-        turn_on_relay()
+        self.turn_on_relay()
 
     def pause(self):
         print("RelayController.pause")
         self.timer.deinit()
-        turn_off_relay()
+        self.turn_off_relay()
 
     def resume(self):
         print("RelayController.resume")
         self._schedule_timer()
-        turn_on_relay()
+        self.turn_on_relay()
 
     def cancel(self):
         # This can be called from timer callback. Don't use print.
         # print("RelayController.cancel")
         self.timer.deinit()
-        turn_off_relay()
+        self.turn_off_relay()
         completed_seconds = self.initial_timer_value_in_minutes * 60 - self.remaining_timer_value_in_seconds
         self.call_back_when_done(completed_seconds, self.initial_timer_value_in_minutes)
         # the callback needs this object state. Reset must be after the callback.
