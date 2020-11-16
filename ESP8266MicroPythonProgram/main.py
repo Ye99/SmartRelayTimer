@@ -145,7 +145,7 @@ def process_call_back_message() -> str:
 with open('config.json') as f:
     config = ujson.load(f)
 
-relay_high_trigger = config['relay_high_trigger']
+relay_high_trigger = "True" == config['relay_high_trigger']
 relay_controller = RelayController(relay_time_done, relay_high_trigger)
 
 while True:
