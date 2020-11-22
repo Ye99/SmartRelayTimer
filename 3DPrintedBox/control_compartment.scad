@@ -148,7 +148,7 @@ module cut_sensor_wire_hole(control_compartment_x_length,
             sensor_wire_hole(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
         }
         else {
-            sensor_wire_hole(58, control_compartment_y_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
+            sensor_wire_hole(56, control_compartment_y_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
         }
         
          
@@ -242,7 +242,7 @@ control_compartment(61, // control_compartment_x_length=
     40, // control_compartment_z_length
     2, // control_compartment_wall_thickness
     "all", // cover, bottom, or all
-    6, // sensor wire hole diameter
+    8, // sensor wire hole diameter
     true); // isBlankCover?
 
 /*
