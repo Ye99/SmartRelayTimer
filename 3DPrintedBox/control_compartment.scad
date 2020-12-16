@@ -148,10 +148,8 @@ module cut_sensor_wire_hole(control_compartment_x_length,
             sensor_wire_hole(control_compartment_x_length, control_compartment_y_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
         }
         else {
-            sensor_wire_hole(56, control_compartment_y_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
+            sensor_wire_hole(control_compartment_x_length-sensor_wire_hole_diameter/2, control_compartment_y_length, control_compartment_wall_thickness, sensor_wire_hole_diameter);
         }
-        
-         
 }
 
 module buttom_group(control_compartment_x_length, 
@@ -237,12 +235,12 @@ module cover_besides_box(control_compartment_x_length, control_compartment_y_len
 
 // These x/y length is inner size, not including wall thickness.
 // Z length includes buttom thickness (==control_compartment_wall_thickness).
-control_compartment(61, // control_compartment_x_length=
+control_compartment(81, // control_compartment_x_length= 61 by default
     70, // control_compartment_y_length
     40, // control_compartment_z_length
     2, // control_compartment_wall_thickness
     "all", // cover, bottom, or all
-    8, // sensor wire hole diameter
+    17, // sensor wire hole diameter default 8
     true); // isBlankCover?
 
 /*
