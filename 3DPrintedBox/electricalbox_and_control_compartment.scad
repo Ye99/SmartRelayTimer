@@ -9,7 +9,9 @@ use <control_compartment.scad>
 use <BOSL/transforms.scad>
 
 // If set to true, compartment cover doesn't have screen or touch pad.
-is_blank_cover=true;
+is_blank_cover=false;
+
+has_electricalbox=false;
 
 // Print cover/bottom separately if your printer bed isn't large enough for "all" at once.
 part_enum = "all"; // Options "cover", "bottom", "all"
@@ -22,7 +24,9 @@ wall_thickness=wall_double_thickness/2;
 control_compartment_z_length=height+wall_thickness;
 
 // Hole for three wires relay control.
-relay_control_wires_hole_diameter=8;
+relay_control_wires_hole_diameter=0;
+
+sensor_wires_hole_diameter=12;
 
 module cut_signal_wire_hole(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness) {
         // control input wires hole on the other side wall
@@ -44,10 +48,17 @@ module arrange_x_positions() {
 
 difference() {
     union() {
-        electricalbox(part_enum); 
+        if (has_electricalbox)
+            electricalbox(part_enum); 
         arrange_x_positions()
             fwd(length/2+wall_thickness)
-                control_compartment(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, wall_thickness, part_enum, 8, is_blank_cover);
+                control_compartment(control_compartment_x_length, 
+                                    control_compartment_y_length, 
+                                    control_compartment_z_length, 
+                                    wall_thickness, 
+                                    part_enum, 
+                                    sensor_wires_hole_diameter, 
+                                    is_blank_cover);
     }
 
     if ("cover" != part_enum)
