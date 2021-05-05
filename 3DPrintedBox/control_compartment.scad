@@ -160,10 +160,7 @@ module buttom_group(control_compartment_x_length,
     isBlankCover) {
     difference() {
         add_screw_tabs_to_box_top_corners(control_compartment_x_length, control_compartment_y_length, control_compartment_z_length, control_compartment_wall_thickness) {
-            HW_389_base(control_compartment_x_length, 
-                        control_compartment_y_length, 
-                        control_compartment_z_length, 
-                        control_compartment_wall_thickness);
+            children(); // This is the box buttom part.
             wall_screw_tab();
         }
         cut_sensor_wire_hole(control_compartment_x_length, 
@@ -191,20 +188,80 @@ module cover_group(control_compartment_x_length, control_compartment_y_length, c
     }
 }
 
+// TODO: extract this to library.
+module cut_ventilation_slots(width, height, single_slot_z, slot_ratio, wall_thickness) {
+    step_z = single_slot_z/slot_ratio;
+    echo("step_z is ", step_z);
+    for(i=[0:height/step_z]) {
+        up(step_z*i)
+            #cube([width, wall_thickness*2, single_slot_z], center=true);
+    }
+}
+
+// Single slot hole height in mm. 
+single_slot_z = 3;
+
+// Extract this to shared library.
+// A simple box without lid, with ventilation slots on y sides.
+module box(net_x, net_y, total_z, wall_thickness) {
+    assert(total_z > wall_thickness, "total_z must be greater than wall_thickness!");
+    double_wall_thickness = wall_thickness * 2;
+    difference() {
+        cube([net_x+double_wall_thickness, net_y+double_wall_thickness, total_z], center = true);
+        up(wall_thickness)
+            cube([net_x, net_y, total_z-wall_thickness], center = true);
+        
+        down(total_z/2-wall_thickness*3) {
+            back(net_y/2)
+                cut_ventilation_slots(net_x, 
+                                    total_z-wall_thickness*5, 
+                                    single_slot_z, 
+                                    0.6, 
+                                    wall_thickness);
+            fwd(net_y/2)
+                cut_ventilation_slots(net_x, 
+                                    total_z-wall_thickness*5, 
+                                    single_slot_z, 
+                                    0.6, 
+                                    wall_thickness);
+        }
+    }
+}
+
+// If box_part_type is not "HW_389_base", render a basic box. 
+module box_bottom_part(box_part_type, net_x, net_y, total_z, wall_thickness) {
+    if (box_part_type == "HW_389_base") { 
+        HW_389_base(net_x, net_y, total_z, wall_thickness);
+    } else {
+        right(net_x/2 + wall_thickness)
+            back(net_y/2 + wall_thickness)
+                up(total_z/2)
+                    box(net_x, net_y, total_z, wall_thickness);
+    }
+}
+
+// If box_part_type is not "HW_389_base", render a basic box.
 module control_compartment(control_compartment_x_length, 
     control_compartment_y_length, 
     control_compartment_z_length, 
     control_compartment_wall_thickness, 
     part,
     sensor_wire_hole_diameter,
-    isBlankCover) {
+    isBlankCover,
+    box_part_type) {
     if (part == "bottom") {
         buttom_group(control_compartment_x_length, 
             control_compartment_y_length, 
             control_compartment_z_length, 
             control_compartment_wall_thickness, 
             sensor_wire_hole_diameter, 
-            isBlankCover);
+            isBlankCover) {
+                box_bottom_part(box_part_type, 
+                                control_compartment_x_length, 
+                                control_compartment_y_length, 
+                                control_compartment_z_length, 
+                                control_compartment_wall_thickness);
+            }
     } else if (part == "cover") {
         cover_group(control_compartment_x_length, 
             control_compartment_y_length, 
@@ -217,7 +274,13 @@ module control_compartment(control_compartment_x_length,
             control_compartment_z_length, 
             control_compartment_wall_thickness, 
             sensor_wire_hole_diameter, 
-            isBlankCover);
+            isBlankCover) {
+                box_bottom_part(box_part_type, 
+                                control_compartment_x_length, 
+                                control_compartment_y_length, 
+                                control_compartment_z_length, 
+                                control_compartment_wall_thickness);
+            }
         
         cover_group(control_compartment_x_length, 
             control_compartment_y_length, 
@@ -241,7 +304,8 @@ control_compartment(81, // control_compartment_x_length= 61 by default
     2, // control_compartment_wall_thickness
     "all", // cover, bottom, or all
     17, // sensor wire hole diameter default 8
-    true); // isBlankCover?
+    true, // isBlankCover?
+    box_part_type="HW_389_base1"); // HW_389_base or basic box.
 
 /*
 control_compartment(106, // control_compartment_x_length=
