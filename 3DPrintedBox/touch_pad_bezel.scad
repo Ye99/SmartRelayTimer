@@ -180,7 +180,7 @@ module shift_object_for_bezel_wall () {
 *touch_pad_bezel();
 
 // This puts the cover aside the pad
-translate([0, -pin_area_y_length*2-5, 0])
+*translate([0, -pin_area_y_length*2-5, 0])
     touch_pad_pin_cover();
 
 // This puts the cover onto the pad, to double check fit

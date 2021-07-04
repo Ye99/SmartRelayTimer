@@ -298,14 +298,14 @@ module cover_besides_box(control_compartment_x_length, control_compartment_y_len
 
 // These x/y length is inner size, not including wall thickness.
 // Z length includes buttom thickness (==control_compartment_wall_thickness).
-control_compartment(81, // control_compartment_x_length= 61 by default
+control_compartment(78, // control_compartment_x_length= 61 by default
     70, // control_compartment_y_length
     40, // control_compartment_z_length
     2, // control_compartment_wall_thickness
     "all", // cover, bottom, or all
-    17, // sensor wire hole diameter default 8
+    8, // sensor wire hole diameter default 8
     true, // isBlankCover?
-    box_part_type="HW_389_base1"); // HW_389_base or basic box.
+    box_part_type="HW_389_base"); // HW_389_base or basic box.
 
 /*
 control_compartment(106, // control_compartment_x_length=
@@ -316,3 +316,6 @@ control_compartment(106, // control_compartment_x_length=
     6, // sensor wire hole diameter
     false); // isBlankCover?
     */
+// If you want to print touch pad bezel, search for
+// "This puts the cover aside the pad" in touch_pad_bezel.scad
+   
