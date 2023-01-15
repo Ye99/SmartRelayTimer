@@ -81,7 +81,7 @@ support_cylinder_shrink_factor=0.39; // The small number, the leaner oval shaped
 support_cylinder_radius=(screw_posistion_from_edge + 6); // increase number 6 to add more material to inner direction. 
 
 // support_cylinder_radius shrink widthwise, leave more room for outlet body. The smaller this number, she skinnier the support.
-lengthwise_support_cylinder_shrink_factor=0.3;
+lengthwise_support_cylinder_shrink_factor=0.25;
 
 // distance between supporting cylinder and box top
 cylinder_top_gap=5.5-wall_double_thickness; // deduct cover thickness so the outlet will be flush.
@@ -176,17 +176,18 @@ module outlet_screw_cylinder(length, ow_height, screw_pos) {
                     cylinder(h=cylinder_height, 
                             r=support_cylinder_radius, 
                             $fn=60, center=false);
-                
-                up(ow_height/2+wall_double_thickness) // to make tab strong, its thickness equals to wall_double_thickness
+            
+                outertab_thickness=wall_double_thickness/2*3; // to make tab strong, increase the fractional number.
+                up(ow_height/2+outertab_thickness) 
                      forward(support_cylinder_radius)
                          {
                             // remove half of the outer cylinder                  
                             cube([support_cylinder_radius*2, support_cylinder_radius*2, 
                                   ow_height], true);   
                         }
-                // screw hole in the outside cylinder tab
                         
-                forward(support_cylinder_radius/2)
+                // screw hole in the outside cylinder tab
+                forward(support_cylinder_radius*2/5) // The smaller, the closer to wall. 
                      #cylinder(d=bottom_tab_screw_hole_diag, h=ow_height*2, $fn=50, center=true);
                     
                 // outlet tap screw hole in the cylinder
